@@ -26,13 +26,14 @@ public class IdentityApplication extends APIApplication {
 		/**
 		 * Temporary assigning /pub servlet instead of pure html
 		 */
-		bootstrap.addBundle(new AssetsBundle("/pub", "/pub"));
+		bootstrap.addBundle(new AssetsBundle("/pub", "/public"));
 		bootstrap.addBundle(new ViewBundle());
 	}
 	
 	@Override
 	public void run(APIBaseConfiguration configuration, Environment environment) throws Exception {
 		super.run(configuration, environment);
+		environment.jersey().setUrlPattern("/v3a/*");
 	}
 	
 	/**
