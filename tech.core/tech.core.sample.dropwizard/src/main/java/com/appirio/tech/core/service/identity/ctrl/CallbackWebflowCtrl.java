@@ -114,7 +114,8 @@ public class CallbackWebflowCtrl {
 		options.setIssuedAt(true);
 		options.setJwtId(true);
 		
-		JWTSigner signer = new JWTSigner(Base64.decodeBase64(clientSecret).toString());
+		//JWTSigner signer = new JWTSigner(Base64.decodeBase64(clientSecret).toString());
+		JWTSigner signer = new JWTSigner(clientSecret);
 		return signer.sign(claims, options);
 	}
 
