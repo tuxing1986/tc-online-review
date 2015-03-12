@@ -70,11 +70,11 @@
     $(document).ready(function() {
 
         $('.btn-login').click(function(e) {
-          location.href = "../v3/login?retUrl=" + location.href;
+          location.href = "../v3a/login?retUrl=" + location.href;
         });
 
         $('.btn-login-debug').click(function(e) {
-            var new_location = "../v3/login?debug=true&retUrl=" + location.href;
+            var new_location = "../v3a/login?debug=true&retUrl=" + location.href;
             alert("Redirecting to:\n" + new_location);
             location.href = new_location;
           });
@@ -142,8 +142,8 @@ pre {
         <option value="http://api.topcoder-dev.com">http://api.topcoder-dev.com</option>
         <option value="http://localhost:8080">http://localhost:8080</option>
       </select></dd>
-      <dt>endpoint:</dt><dd><input type=text id="endpoint" value="/v3/"/></dd>
-      <dt>resource:</dt><dd><input type=text id="resource" value="users"/></dd>
+      <dt>endpoint:</dt><dd><input type=text id="endpoint" value="/v3a/"/></dd>
+      <dt>resource:</dt><dd><input type=text id="resource" value="apisamples"/></dd>
       <dt>filter:</dt><dd><input type=text id="filter" size=70/></dd>
       <dt>limit:</dt><dd><input type=text id="limit"/></dd>
       <dt>offset:</dt><dd><input type=text id="offset"/></dd>
