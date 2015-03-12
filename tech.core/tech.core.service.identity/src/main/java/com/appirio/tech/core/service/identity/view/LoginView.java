@@ -31,7 +31,7 @@ public class LoginView extends View {
 				+ "&debug=" + debug;
 		auth0_state = URLEncoder.encode(state, "UTF-8");
 		String url = request.getRequestURL().toString();
-		callbackUrl = url.substring(0, url.length()-"/pub/login".length()) + "/v3/callback";
+		callbackUrl = url.substring(0, url.length()-"pub/login".length()) + "/v3/callback";
 	}
 
 	public String getClientDomain() {
