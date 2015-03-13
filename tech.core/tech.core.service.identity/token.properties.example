@@ -1,0 +1,7 @@
+@application.database.user@=coder
+@application.database.password@=1nf0rm1x
+@application.database.port@=2020
+
+@ldap.host@=ldap.topcoder.com
+@ldap.port@=389
+@ldap.password@=pass
