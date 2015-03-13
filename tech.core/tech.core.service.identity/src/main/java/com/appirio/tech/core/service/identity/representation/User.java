@@ -9,7 +9,7 @@ public class User extends AbstractIdResource {
 	private String firstName;
 	private String lastName;
 	private Credential credential;
-	private Boolean active;
+	private Boolean active = false;
 	
 	public String getHandle() {
 		return handle;
