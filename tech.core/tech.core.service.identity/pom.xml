@@ -26,6 +26,26 @@
         </configuration>
       </plugin>
       <plugin>
+		<groupId>com.google.code.maven-replacer-plugin</groupId>
+		<artifactId>replacer</artifactId>
+		<version>1.5.3</version>
+		<executions>
+			<execution>
+				<phase>prepare-package</phase>
+				<goals>
+					<goal>replace</goal>
+				</goals>
+			</execution>
+		</executions>
+		<configuration>
+            <includes>
+                <include>${basedir}/target/**/*.yml</include>
+                <include>${basedir}/target/**/*.properties</include>
+            </includes>
+			<tokenValueMap>${basedir}/token.properties</tokenValueMap>
+		</configuration>
+      </plugin>
+      <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
           <version>1.6</version>
@@ -112,7 +132,7 @@
     <dependency>
       <groupId>com.appirio.tech.core.api</groupId>
       <artifactId>tech.core.api</artifactId>
-      <version>API-3.0.0.1-SNAPSHOT</version>
+      <version>API-3.0.0.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.antlr</groupId>
