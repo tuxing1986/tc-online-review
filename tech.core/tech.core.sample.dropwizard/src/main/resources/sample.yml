@@ -1,3 +1,5 @@
+useResourceAutoRegistering: true
+
 server:
   applicationConnectors:
     - type: http
