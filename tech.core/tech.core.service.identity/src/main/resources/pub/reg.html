@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Dummy Reg Page</title>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script type="text/javascript">
+	<!--
+    function register() {
+        var endpoint = $("#host").val()+$("#endpoint").val();
+        var payload = JSON.stringify(
+            { param: {
+            	handle: $("#handle").val(),
+            	email: $("#email").val(),
+            	firstName: $("#fname").val(),
+            	lastName: $("#sname").val(),
+            	credential: {
+					password: $("#password").val(),
+                }
+            }});
+        $.ajax({
+            url : endpoint,
+            type : 'POST',
+            contentType : 'application/json',
+            dataType : 'json',
+            data: payload,
+            success : function(data) {
+                console.log(data);
+                $("#message").html("<pre>" + syntaxHighlight(data) + "</pre>");
+            },
+        	error : function(xhr,status,error) {
+        		console.log(status);
+        		console.log(error);
+        	    var context = "status: " + xhr.status + " " + error + "<br/>" + 
+        	    			"context:<br/>" + 
+        	    			"<pre>" + syntaxHighlight(xhr.responseJSON) + "</pre>";
+                $("#message").html(context);
+        	}
+        });
+    }
+
+    function syntaxHighlight(json) {
+        if (typeof json != 'string') {
+            json = JSON.stringify(json, undefined, 2);
+        }
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return json.replace(
+                        /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+                        function(match) {
+                            var cls = 'number';
+                            if (/^"/.test(match)) {
+                                if (/:$/.test(match)) {
+                                    cls = 'key';
+                                } else {
+                                    cls = 'string';
+                                }
+                            } else if (/true|false/.test(match)) {
+                                cls = 'boolean';
+                            } else if (/null/.test(match)) {
+                                cls = 'null';
+                            }
+                            return '<span class="' + cls + '">' + match + '</span>';
+                        });
+    }
+	-->
+	</script>
+	<style type="text/css">
+	<!--
+	#message {
+		margin: 20px;
+		padding: 10px;
+		border: solid 2px #000;
+		width: 65%;
+	}
+	#reg .info {
+		font-color: #aaa;
+		font-size: small;
+		margin-left: 3px;
+	}
+	-->
+	</style>
+</head>
+<body>
+	<div id="reg">
+		<dl>
+			<dt>handle:</dt><dd><input type="text" id="handle" value="jdoe" size=40 maxlength="15"/>
+			<span class="info">(required, 2-15)</span></dd>
+			<dt>email: </dt><dd><input type="text" id="email" value="jdoe@topcoder.com" size=40 maxlength="100"/>
+			<span class="info">(required, valid format, 1-100)</span></dd>
+			<dt>fiest name: </dt><dd><input type="text" id="fname" value="John" size=40 /></dd>
+			<dt>last name: </dt><dd><input type="text" id="sname" value="Doe" size=40/></dd>
+			<dt>password: </dt><dd><input type="password" id="password" value="" size=40 maxlength="30"/>
+			<span class="info">(required, 7-30)</span></dd>
+		</dl>
+		<dl>
+			<dt>API endpoint:</dt>
+			<dd>
+				<dt>endpoint:</dt>
+				<dd><select id="host">
+        			<option value="http://api.topcoder-dev.com">http://api.topcoder-dev.com</option>
+        			<option value="http://localhost:8080">http://localhost:8080</option>
+      			</select>
+      			<input type="text" id="endpoint" value="/v3/users" size=15/>
+      			</dd>
+			</dd>
+		</dl>
+    	<button type="button" onclick="register()">Register</button>
+    	<div id="message">
+    	</div>
+	</div>
+</body>
+</html>

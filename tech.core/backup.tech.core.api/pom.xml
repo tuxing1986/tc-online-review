@@ -5,7 +5,7 @@
 
   <groupId>com.appirio.tech.core.api</groupId>
   <artifactId>tech.core.api</artifactId>
-  <version>API-3.0.0.2-SNAPSHOT</version>
+  <version>API-1.1-SNAPSHOT</version>
   <name>tech.core.api</name>
   <url>http://maven.apache.org</url>
   <packaging>jar</packaging>
@@ -72,11 +72,6 @@
       <version>${dropwizard.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.dropwizard</groupId>
-      <artifactId>dropwizard-jdbi</artifactId>
-      <version>${dropwizard.version}</version>
-    </dependency>
-    <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
       <version>1.4.182</version>
@@ -85,9 +80,7 @@
       <groupId>io.dropwizard</groupId>
       <artifactId>dropwizard-testing</artifactId>
       <version>${dropwizard.version}</version>
-      <!-- 
       <scope>test</scope>
-       -->
     </dependency>
 
 <!-- FOR Authentication -->
@@ -131,6 +124,19 @@
     </snapshotRepository>
   </distributionManagement>
 
+  <repositories>
+    <repository>
+      <id>Appirio Technology Maven Repository</id>
+      <url>http://maven.appirio.net:8080/</url>
+      <snapshots>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+      <releases>
+        <updatePolicy>always</updatePolicy>
+      </releases>
+    </repository>
+  </repositories>
+
   <reporting>
     <plugins>
       <plugin>
@@ -140,11 +146,6 @@
         <configuration>
           <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-report-plugin</artifactId>
-        <version>2.18.1</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -160,7 +161,7 @@
           <sourceEncoding>UTF-8</sourceEncoding>
           <targetJdk>1.6</targetJdk>
           <includes>
-            <include>com/appirio/tech/core/**/*.java</include>
+            <include>com/appirio/tech/core/*.java</include>
           </includes>
         </configuration>
       </plugin>
