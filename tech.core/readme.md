@@ -86,15 +86,15 @@ Shared library has 2 interfaces for convenience, so that developers know the int
 com.appirio.tech.core.sample.resource.SampleResource class holds the methods.
 Few parameters worth noting here:
 1.  @Auth AuthUser  
-The method handles JWT authentication. Refer dropwizard authentication docs for the details.  
+  * The method handles JWT authentication. Refer dropwizard authentication docs for the details.  
 2. @APIFieldParam(repClass = Sample.class) FieldSelector  
-FieldSelector holds parameters passed from request for single resource retrieval (fields parameter in V3 API).  
-repClass is the POJO representation class. Request injection class will parse parameter according to the specified representation class.  
+  * FieldSelector holds parameters passed from request for single resource retrieval (fields parameter in V3 API).  
+  * repClass is the POJO representation class. Request injection class will parse parameter according to the specified representation class.  
 3. @APIQueryParam(repClass = Sample.class) QueryParameter  
-QueryParameter holds parameters passed from request for multiple resource retrieval (@see V3 API: GET Reserved Parameters)  
-repClass is the POJO representation class. Request injection class will parse parameter according to the specified representation class.  
+  * QueryParameter holds parameters passed from request for multiple resource retrieval (@see V3 API: GET Reserved Parameters)  
+  * repClass is the POJO representation class. Request injection class will parse parameter according to the specified representation class.  
 4. @Valid PostPutRequest  
-PostPutRequest holds post and put representation class as specified in V3 API doc
+  * PostPutRequest holds post and put representation class as specified in V3 API doc
 
 #### Response
 
