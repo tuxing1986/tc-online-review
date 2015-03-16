@@ -18,10 +18,10 @@ import com.appirio.tech.core.api.v3.dropwizard.APIBaseConfiguration;
  * @author sudo
  *
  */
-public class IdentityApplication extends APIApplication {
+public class IdentityApplication extends APIApplication<IdentityConfiguration> {
 
 	@Override
-	public void initialize(Bootstrap<APIBaseConfiguration> bootstrap) {
+	public void initialize(Bootstrap<IdentityConfiguration> bootstrap) {
 		super.initialize(bootstrap);
 		/**
 		 * Temporary assigning /pub servlet instead of pure html
