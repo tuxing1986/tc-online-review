@@ -12,7 +12,7 @@ import org.joda.time.DateTime;
 import com.appirio.tech.core.api.v3.TCID;
 import com.appirio.tech.core.api.v3.request.FilterParameter;
 import com.appirio.tech.core.sample.exception.StorageException;
-import com.appirio.tech.core.sample.representation.SamplePOJO;
+import com.appirio.tech.core.sample.representation.Sample;
 
 
 /**
@@ -25,7 +25,7 @@ public class InMemoryUserStorage {
 	
 	private AtomicInteger userDual = new AtomicInteger(1000);
 	
-	private List<SamplePOJO> userList = new ArrayList<SamplePOJO>();
+	private List<Sample> userList = new ArrayList<Sample>();
 	
 	/**
 	 * Singleton In-memory Storage.
@@ -58,8 +58,8 @@ public class InMemoryUserStorage {
 		insertUser("DhananjayKumar1", "dhananjay.kumar@appirio.com", "Dhananjay", "Kumar");
 	}
 
-	private SamplePOJO insertUser(String handle, String email, String firstName, String lastName) {
-		SamplePOJO user = new SamplePOJO();
+	private Sample insertUser(String handle, String email, String firstName, String lastName) {
+		Sample user = new Sample();
 		user.setHandle(handle);
 		user.setEmail(email);
 		user.setFirstName(firstName);
@@ -71,7 +71,7 @@ public class InMemoryUserStorage {
 		return instance;
 	}
 	
-	public SamplePOJO insertUser(SamplePOJO user) {
+	public Sample insertUser(Sample user) {
 		user.setId(new TCID(userDual.getAndIncrement()));
 		user.setCreatedAt(new DateTime());
 		user.setModifiedAt(new DateTime());
@@ -80,7 +80,7 @@ public class InMemoryUserStorage {
 	}
 	
 	public void deleteUser(TCID id) {
-		for(SamplePOJO user: userList) {
+		for(Sample user: userList) {
 			if(user.getId().equals(id)) {
 				userList.remove(user);
 				return;
@@ -89,15 +89,15 @@ public class InMemoryUserStorage {
 		throw new StorageException("Record Not Found:" + id);
 	}
 	
-	public List<SamplePOJO> getUserList() {
+	public List<Sample> getUserList() {
 		return userList;
 	}
 
-	public List<SamplePOJO> getFilteredUserList(FilterParameter parameter) {
-		List<SamplePOJO> resultList = new ArrayList<SamplePOJO>();
+	public List<Sample> getFilteredUserList(FilterParameter parameter) {
+		List<Sample> resultList = new ArrayList<Sample>();
 		
 		//Filter to specified queries
-		for(SamplePOJO user : getUserList()) {
+		for(Sample user : getUserList()) {
 			if(parameter.contains("handle") && !(parameter.get("handle").equals(user.getHandle()))) continue;
 			if(parameter.contains("email") && !(parameter.get("email").equals(user.getEmail()))) continue;
 			if(parameter.contains("firstName") && !(parameter.get("firstName").equals(user.getFirstName()))) continue;
@@ -110,10 +110,10 @@ public class InMemoryUserStorage {
 	/**
 	 * @param object
 	 */
-	public void updateUser(SamplePOJO object) {
+	public void updateUser(Sample object) {
 		TCID id = object.getId();
-		SamplePOJO orgUser = null;
-		for(SamplePOJO user : getUserList()) {
+		Sample orgUser = null;
+		for(Sample user : getUserList()) {
 			if(user.getId().equals(id)) {
 				orgUser = user; break;
 			}
