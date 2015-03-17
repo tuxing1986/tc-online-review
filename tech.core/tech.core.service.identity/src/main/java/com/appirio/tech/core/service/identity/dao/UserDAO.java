@@ -103,7 +103,11 @@ public abstract class UserDAO implements DaoBase<User>, Transactional<UserDAO> {
 
 	@Transaction(TransactionIsolationLevel.READ_COMMITTED)
 	public TCID register(User user) {
-
+		if(sequenceDao==null)
+			throw new IllegalStateException("sequenceDao is not specified.");
+		if(ldapService==null)
+			throw new IllegalStateException("ldapService is not specified.");
+		
 		Long userId = sequenceDao.nextVal("sequence_user_seq");
 
 		user.setId(new TCID(userId));
@@ -136,6 +140,11 @@ public abstract class UserDAO implements DaoBase<User>, Transactional<UserDAO> {
 									user.isActive() ? MemberStatus.ACTIVATED : MemberStatus.UNACTIVATED);
 	}
 	
+	public boolean handleExists(String handle) {
+		User user = findUserByHandle(handle);
+		return user != null;
+	}
+	
 	@Override
 	public List<User> populate(QueryParameter query) throws Exception {
 		return null;
@@ -150,20 +159,16 @@ public abstract class UserDAO implements DaoBase<User>, Transactional<UserDAO> {
 
 	@Override
 	public TCID insert(User user) throws Exception {
-		return null;
+		throw new UnsupportedOperationException("Not implemented yet.");
 	}
 
 	@Override
 	public TCID update(User user) throws Exception {
-		return null;
+		throw new UnsupportedOperationException("Not implemented yet.");
 	}
 
 	@Override
 	public void delete(TCID id) throws Exception {
-	}
-	
-	public boolean handleExists(String handle) {
-		User user = findUserByHandle(handle);
-		return user != null;
+		throw new UnsupportedOperationException("Not implemented yet.");
 	}
 }

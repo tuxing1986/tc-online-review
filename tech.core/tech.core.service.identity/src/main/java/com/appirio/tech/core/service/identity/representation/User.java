@@ -96,24 +96,6 @@ public class User extends AbstractIdResource {
 	}
 
 
-	public static final String MSG_TEMPALTE_MANDATORY = "%s is required";
-	
-	public static final String MSG_TEMPALTE_INVALID_MAX_LENGTH = "Maximum length of %s is %d";
-	
-	public static final String MSG_TEMPALTE_INVALID_MINMAX_LENGTH = "Length of %s in character should be between %d and %d";
-
-	public static final String MSG_TEMPALTE_INVALID_HANDLE_CONTAINS_SPACE = "The handle may not contain a space";
-	
-	public static final String MSG_TEMPALTE_INVALID_HANDLE_CONTAINS_FORBIDDEN_CHARS = "The handle may contain only letters, numbers and " + HANDLE_PUNCTUATION;
-
-	public static final String MSG_TEMPALTE_INVALID_HANDLE_CONTAINS_ONLY_PUNCTUATION = "The handle may not contain only punctuation.";
-
-	public static final String MSG_TEMPALTE_INVALID_HANDLE_STARTS_WITH_ADMIN = "Please choose another handle, not starting with admin.";
-
-	public static final String MSG_TEMPALTE_INVALID_EMAIL = "Email address is invalid";
-
-	public static final String MSG_TEMPALTE_INVALID_PASSWORD = "Password is too week";
-	
 	//
 	/**
 	 * do validation check on handle

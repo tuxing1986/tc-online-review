@@ -29,7 +29,6 @@ import com.appirio.tech.core.api.v3.response.ApiResponseFactory;
 import com.appirio.tech.core.auth.AuthUser;
 import com.appirio.tech.core.service.identity.dao.UserDAO;
 import com.appirio.tech.core.service.identity.representation.User;
-import com.appirio.tech.core.service.identity.util.Utils;
 import com.appirio.tech.core.service.identity.util.idgen.SequenceDAO;
 import com.appirio.tech.core.service.identity.util.ldap.LDAPService;
 import com.codahale.metrics.annotation.Timed;
@@ -94,8 +93,7 @@ public class UserResource implements GetResource<User>, DDLResource {
         	throw new APIRuntimeException(HttpServletResponse.SC_BAD_REQUEST, error);
         }
         
-		//TODO:
-		user.setActive(true);
+		user.setActive(false);
 		userDao.register(user);
 		
 		return ApiResponseFactory.createResponse(user);
