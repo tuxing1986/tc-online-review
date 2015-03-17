@@ -60,8 +60,7 @@
                       <transformers>
                           <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                           <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                              <!-- <mainClass>com.appirio.tech.core.api.v3.dropwizard.APIApplication</mainClass> -->
-                              <mainClass>com.appirio.tech.core.service.identity.IdentityApplication</mainClass>
+                              <mainClass>com.appirio.tech.core.api.v3.dropwizard.APIApplication</mainClass>
                           </transformer>
                       </transformers>
                   </configuration>
