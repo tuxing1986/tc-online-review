@@ -39,7 +39,7 @@ import com.appirio.tech.core.api.v3.response.ApiResponse;
 import com.appirio.tech.core.api.v3.response.ApiResponseFactory;
 import com.appirio.tech.core.auth.AuthUser;
 import com.appirio.tech.core.sample.exception.StorageException;
-import com.appirio.tech.core.sample.representation.Sample;
+import com.appirio.tech.core.sample.representation.SamplePOJO;
 import com.appirio.tech.core.sample.storage.InMemoryUserStorage;
 import com.codahale.metrics.annotation.Timed;
 
@@ -49,7 +49,7 @@ import com.codahale.metrics.annotation.Timed;
  */
 @Path("apisamples")
 @Produces(MediaType.APPLICATION_JSON)
-public class SampleResource implements GetResource<Sample>, DDLResource {
+public class SampleResource implements GetResource<SamplePOJO>, DDLResource {
 
 	private InMemoryUserStorage storage = InMemoryUserStorage.instance();
 	
@@ -60,10 +60,10 @@ public class SampleResource implements GetResource<Sample>, DDLResource {
 	public ApiResponse getObject(
 			@Auth AuthUser authUser,
 			@PathParam("resourceId") TCID recordId,
-			@APIFieldParam(repClass = Sample.class) FieldSelector selector,
+			@APIFieldParam(repClass = SamplePOJO.class) FieldSelector selector,
 			@Context HttpServletRequest request)
 			throws Exception {
-		for(Sample user : storage.getUserList()) {
+		for(SamplePOJO user : storage.getUserList()) {
 			if(user.getId().equals(recordId)) {
 				return ApiResponseFactory.createFieldSelectorResponse(user, selector);
 			}
@@ -76,39 +76,39 @@ public class SampleResource implements GetResource<Sample>, DDLResource {
 	@Timed
 	public ApiResponse getObjects(
 			@Auth AuthUser authUser,
-			@APIQueryParam(repClass = Sample.class) QueryParameter query,
+			@APIQueryParam(repClass = SamplePOJO.class) QueryParameter query,
 			@Context HttpServletRequest request) throws Exception {
 		FilterParameter parameter = query.getFilter();
-		List<Sample> resultList = storage.getFilteredUserList(parameter);
+		List<SamplePOJO> resultList = storage.getFilteredUserList(parameter);
 		
 		//order_by
 		if(query.getOrderByQuery().getOrderByField()!=null) {
 			String orderField = query.getOrderByQuery().getOrderByField();
 			final Boolean order = SortOrder.ASC_NULLS_FIRST==query.getOrderByQuery().getSortOrder()?true:false;
 			if(orderField.equals("handle")) {
-				Collections.sort(resultList, new Comparator<Sample>() {
-					public int compare(Sample o1, Sample o2) {
+				Collections.sort(resultList, new Comparator<SamplePOJO>() {
+					public int compare(SamplePOJO o1, SamplePOJO o2) {
 						int result = o1.getHandle().compareTo(o2.getHandle());
 						return order?result:-1*result;
 					}
 				});
 			}else if(orderField.equals("email")) {
-				Collections.sort(resultList, new Comparator<Sample>() {
-					public int compare(Sample o1, Sample o2) {
+				Collections.sort(resultList, new Comparator<SamplePOJO>() {
+					public int compare(SamplePOJO o1, SamplePOJO o2) {
 						int result = o1.getEmail().compareTo(o2.getEmail());
 						return order?result:-1*result;
 					}
 				});
 			}else if(orderField.equals("firstName")) {
-				Collections.sort(resultList, new Comparator<Sample>() {
-					public int compare(Sample o1, Sample o2) {
+				Collections.sort(resultList, new Comparator<SamplePOJO>() {
+					public int compare(SamplePOJO o1, SamplePOJO o2) {
 						int result = o1.getFirstName().compareTo(o2.getFirstName());
 						return order?result:-1*result;
 					}
 				});
 			}else if(orderField.equals("lastName")) {
-				Collections.sort(resultList, new Comparator<Sample>() {
-					public int compare(Sample o1, Sample o2) {
+				Collections.sort(resultList, new Comparator<SamplePOJO>() {
+					public int compare(SamplePOJO o1, SamplePOJO o2) {
 						int result = o1.getLastName().compareTo(o2.getLastName());
 						return order?result:-1*result;
 					}
@@ -137,7 +137,7 @@ public class SampleResource implements GetResource<Sample>, DDLResource {
 			@Valid PostPutRequest postRequest,
 			@Context HttpServletRequest request)
 			throws Exception {
-		Sample object = (Sample)postRequest.getParamObject(Sample.class);
+		SamplePOJO object = (SamplePOJO)postRequest.getParamObject(SamplePOJO.class);
 		object.setCreatedAt(new DateTime());
 		object.setModifiedAt(new DateTime());
 		return ApiResponseFactory.createResponse(storage.insertUser(object).getId());
@@ -152,7 +152,7 @@ public class SampleResource implements GetResource<Sample>, DDLResource {
 			@PathParam("resourceId") String resourceId,
 			@Valid PostPutRequest putRequest,
 			@Context HttpServletRequest request) throws Exception {
-		Sample object = (Sample)putRequest.getParamObject(Sample.class);
+		SamplePOJO object = (SamplePOJO)putRequest.getParamObject(SamplePOJO.class);
 		object.setModifiedAt(new DateTime());
 		storage.updateUser(object);
 		return ApiResponseFactory.createResponse(object.getId());
