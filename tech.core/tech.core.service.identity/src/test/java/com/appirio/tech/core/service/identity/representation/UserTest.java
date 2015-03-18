@@ -50,7 +50,7 @@ public class UserTest {
 		
 		testee.setFirstName(genText(MAX_LENGTH_FIRST_NAME+1));
 		assertEquals(
-				String.format(MSG_TEMPALTE_INVALID_MAX_LENGTH, "first name", MAX_LENGTH_FIRST_NAME),
+				String.format(MSG_TEMPLATE_INVALID_MAX_LENGTH, "first name", MAX_LENGTH_FIRST_NAME),
 				testee.validateFirstName());
 		
 		
@@ -65,7 +65,7 @@ public class UserTest {
 		
 		testee.setLastName(genText(MAX_LENGTH_LAST_NAME+1));
 		assertEquals(
-				String.format(MSG_TEMPALTE_INVALID_MAX_LENGTH, "last name", MAX_LENGTH_LAST_NAME),
+				String.format(MSG_TEMPLATE_INVALID_MAX_LENGTH, "last name", MAX_LENGTH_LAST_NAME),
 				testee.validateLastName());
 		
 	}
@@ -77,11 +77,11 @@ public class UserTest {
 
 		// Mandatory
 		assertEquals(
-				String.format(MSG_TEMPALTE_MANDATORY, "Handle"),
+				String.format(MSG_TEMPLATE_MANDATORY, "Handle"),
 				testee.validateHandle());
 		testee.setHandle("");
 		assertEquals(
-				String.format(MSG_TEMPALTE_MANDATORY, "Handle"),
+				String.format(MSG_TEMPLATE_MANDATORY, "Handle"),
 				testee.validateHandle());
 		
 		// Length
@@ -93,11 +93,11 @@ public class UserTest {
 		
 		testee.setHandle(genText(MAX_LENGTH_HANDLE+1));
 		assertEquals(
-				String.format(MSG_TEMPALTE_INVALID_MINMAX_LENGTH, "handle", MIN_LENGTH_HANDLE, MAX_LENGTH_HANDLE),
+				String.format(MSG_TEMPLATE_INVALID_MINMAX_LENGTH, "handle", MIN_LENGTH_HANDLE, MAX_LENGTH_HANDLE),
 				testee.validateHandle());
 		testee.setHandle(genText(MIN_LENGTH_HANDLE-1));
 		assertEquals(
-				String.format(MSG_TEMPALTE_INVALID_MINMAX_LENGTH, "handle", MIN_LENGTH_HANDLE, MAX_LENGTH_HANDLE),
+				String.format(MSG_TEMPLATE_INVALID_MINMAX_LENGTH, "handle", MIN_LENGTH_HANDLE, MAX_LENGTH_HANDLE),
 				testee.validateHandle());
 
 		// Contains blank
@@ -105,7 +105,7 @@ public class UserTest {
 		assertTrue(handle.length() <= MAX_LENGTH_HANDLE);
 		testee.setHandle(handle);
 		assertEquals(
-				MSG_TEMPALTE_INVALID_HANDLE_CONTAINS_SPACE,
+				MSG_TEMPLATE_INVALID_HANDLE_CONTAINS_SPACE,
 				testee.validateHandle());
 		
 		// Contains forbidden char
@@ -117,7 +117,7 @@ public class UserTest {
 			assertTrue(handle.length() <= MAX_LENGTH_HANDLE);
 			testee.setHandle(handle);
 			assertEquals(
-					MSG_TEMPALTE_INVALID_HANDLE_CONTAINS_FORBIDDEN_CHARS,
+					MSG_TEMPLATE_INVALID_HANDLE_CONTAINS_FORBIDDEN_CHARS,
 					testee.validateHandle());
 		}
 		
@@ -127,7 +127,7 @@ public class UserTest {
 		assertTrue(handle.length() <= MAX_LENGTH_HANDLE);
 		testee.setHandle(handle);
 		assertEquals(
-				MSG_TEMPALTE_INVALID_HANDLE_CONTAINS_ONLY_PUNCTUATION,
+				MSG_TEMPLATE_INVALID_HANDLE_CONTAINS_ONLY_PUNCTUATION,
 				testee.validateHandle());
 		
 		// Starts with "admin"
@@ -141,7 +141,7 @@ public class UserTest {
 			assertTrue(handle.length() <= MAX_LENGTH_HANDLE);
 			testee.setHandle(handle);
 			assertEquals(
-					MSG_TEMPALTE_INVALID_HANDLE_STARTS_WITH_ADMIN,
+					MSG_TEMPLATE_INVALID_HANDLE_STARTS_WITH_ADMIN,
 					testee.validateHandle());
 		}
 	}
@@ -153,11 +153,11 @@ public class UserTest {
 		
 		// Mandatory
 		assertEquals(
-				String.format(MSG_TEMPALTE_MANDATORY, "Email address"),
+				String.format(MSG_TEMPLATE_MANDATORY, "Email address"),
 				testee.validateEmail());
 		testee.setEmail("");
 		assertEquals(
-				String.format(MSG_TEMPALTE_MANDATORY, "Email address"),
+				String.format(MSG_TEMPLATE_MANDATORY, "Email address"),
 				testee.validateEmail());
 
 		String suffix = "@example.com";
@@ -170,7 +170,7 @@ public class UserTest {
 
 		testee.setEmail(genText(MAX_LENGTH_EMAIL+1));
 		assertEquals(
-				String.format(MSG_TEMPALTE_INVALID_MAX_LENGTH, "email address", MAX_LENGTH_EMAIL),
+				String.format(MSG_TEMPLATE_INVALID_MAX_LENGTH, "email address", MAX_LENGTH_EMAIL),
 				testee.validateEmail());
 	}
 	
@@ -180,16 +180,16 @@ public class UserTest {
 
 		// Mandatory
 		assertEquals(
-				String.format(MSG_TEMPALTE_MANDATORY, "Password"),
+				String.format(MSG_TEMPLATE_MANDATORY, "Password"),
 				testee.validatePassoword());
 		Credential cred = new Credential();
 		testee.setCredential(cred);
 		assertEquals(
-				String.format(MSG_TEMPALTE_MANDATORY, "Password"),
+				String.format(MSG_TEMPLATE_MANDATORY, "Password"),
 				testee.validatePassoword());
 		cred.setPassword("");
 		assertEquals(
-				String.format(MSG_TEMPALTE_MANDATORY, "Password"),
+				String.format(MSG_TEMPLATE_MANDATORY, "Password"),
 				testee.validatePassoword());
 
 		// Min length
@@ -203,7 +203,7 @@ public class UserTest {
 		testee.getCredential().setPassword(
 				genText(MIN_LENGTH_PASSWORD-1-symNum.length()) + symNum);
 		assertEquals(
-				String.format(MSG_TEMPALTE_INVALID_MINMAX_LENGTH, "passowrd", MIN_LENGTH_PASSWORD, MAX_LENGTH_PASSWORD),
+				String.format(MSG_TEMPLATE_INVALID_MINMAX_LENGTH, "passowrd", MIN_LENGTH_PASSWORD, MAX_LENGTH_PASSWORD),
 				testee.validatePassoword());
 
 		// Max length
@@ -215,7 +215,7 @@ public class UserTest {
 		testee.getCredential().setPassword(
 				genText(MAX_LENGTH_PASSWORD+1-symNum.length()) + symNum);
 		assertEquals(
-				String.format(MSG_TEMPALTE_INVALID_MINMAX_LENGTH, "passowrd", MIN_LENGTH_PASSWORD, MAX_LENGTH_PASSWORD),
+				String.format(MSG_TEMPLATE_INVALID_MINMAX_LENGTH, "passowrd", MIN_LENGTH_PASSWORD, MAX_LENGTH_PASSWORD),
 				testee.validatePassoword());
 
 		// Weakness
@@ -232,7 +232,7 @@ public class UserTest {
 		};
 		for(int i=0; i<WEAK_PASSWD_PATTERNS.length; i++) {
 			testee.getCredential().setPassword(WEAK_PASSWD_PATTERNS[i]);
-			assertEquals(MSG_TEMPALTE_INVALID_PASSWORD, testee.validatePassoword());
+			assertEquals(MSG_TEMPLATE_INVALID_PASSWORD, testee.validatePassoword());
 		}
 		
 		String[] STRONG_PASSWD_PATTERNS = new String[] {

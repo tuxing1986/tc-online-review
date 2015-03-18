@@ -104,23 +104,23 @@ public class User extends AbstractIdResource {
 	public String validateHandle() {
 		// Mandatory
 		if (this.handle==null || this.handle.length()==0)
-			return String.format(MSG_TEMPALTE_MANDATORY, "Handle");
+			return String.format(MSG_TEMPLATE_MANDATORY, "Handle");
 		
 		// Range check
 	    if (this.handle.length() < MIN_LENGTH_HANDLE || this.handle.length() > MAX_LENGTH_HANDLE) {
-	    	return String.format(MSG_TEMPALTE_INVALID_MINMAX_LENGTH, "handle", MIN_LENGTH_HANDLE, MAX_LENGTH_HANDLE);
+	    	return String.format(MSG_TEMPLATE_INVALID_MINMAX_LENGTH, "handle", MIN_LENGTH_HANDLE, MAX_LENGTH_HANDLE);
 	    }
 		if (this.handle.contains(" ")) {
-			return MSG_TEMPALTE_INVALID_HANDLE_CONTAINS_SPACE;
+			return MSG_TEMPLATE_INVALID_HANDLE_CONTAINS_SPACE;
 		}
 		if (!Utils.containsOnly(handle, HANDLE_ALPHABET, false)) {
-			return MSG_TEMPALTE_INVALID_HANDLE_CONTAINS_FORBIDDEN_CHARS;
+			return MSG_TEMPLATE_INVALID_HANDLE_CONTAINS_FORBIDDEN_CHARS;
 		}
 		if (Utils.containsOnly(handle, HANDLE_PUNCTUATION, false)) {
-			return MSG_TEMPALTE_INVALID_HANDLE_CONTAINS_ONLY_PUNCTUATION;
+			return MSG_TEMPLATE_INVALID_HANDLE_CONTAINS_ONLY_PUNCTUATION;
 		}
 		if (handle.toLowerCase().trim().startsWith("admin")) {
-			return MSG_TEMPALTE_INVALID_HANDLE_STARTS_WITH_ADMIN;
+			return MSG_TEMPLATE_INVALID_HANDLE_STARTS_WITH_ADMIN;
 		}
 		/*
 		if (Utils.checkInvalidHandle(handle)) {
@@ -133,16 +133,16 @@ public class User extends AbstractIdResource {
 	public String validateEmail() {
 		// Mandatory
 		if (this.email==null || this.email.length()==0)
-			return String.format(MSG_TEMPALTE_MANDATORY, "Email address");
+			return String.format(MSG_TEMPLATE_MANDATORY, "Email address");
 
 		// Range check
 	    if (this.email.length() > MAX_LENGTH_EMAIL) {
-	    	return String.format(MSG_TEMPALTE_INVALID_MAX_LENGTH, "email address", MAX_LENGTH_EMAIL);
+	    	return String.format(MSG_TEMPLATE_INVALID_MAX_LENGTH, "email address", MAX_LENGTH_EMAIL);
 	    }
 	    
         Matcher matcher = EMAIL_PATTERN.matcher(email);
         if (!matcher.matches()) {
-            return MSG_TEMPALTE_INVALID_EMAIL;
+            return MSG_TEMPLATE_INVALID_EMAIL;
         }
         return null;
 	}
@@ -153,7 +153,7 @@ public class User extends AbstractIdResource {
 			return null;
 		// Range check
 	    if (this.firstName.length() > MAX_LENGTH_FIRST_NAME) {
-	    	return String.format(MSG_TEMPALTE_INVALID_MAX_LENGTH, "first name", MAX_LENGTH_FIRST_NAME);
+	    	return String.format(MSG_TEMPLATE_INVALID_MAX_LENGTH, "first name", MAX_LENGTH_FIRST_NAME);
 	    }
 		return null;
 	}
@@ -164,7 +164,7 @@ public class User extends AbstractIdResource {
 			return null;
 		// Range check
 	    if (this.lastName.length() > MAX_LENGTH_LAST_NAME) {
-	    	return String.format(MSG_TEMPALTE_INVALID_MAX_LENGTH, "last name", MAX_LENGTH_LAST_NAME);
+	    	return String.format(MSG_TEMPLATE_INVALID_MAX_LENGTH, "last name", MAX_LENGTH_LAST_NAME);
 	    }
 		return null;
 	}
@@ -175,7 +175,7 @@ public class User extends AbstractIdResource {
 			return null;
 		// Range check
 	    if (nameValue.length() > maxlength) {
-	    	return String.format(MSG_TEMPALTE_INVALID_MAX_LENGTH, fieldName, maxlength);
+	    	return String.format(MSG_TEMPLATE_INVALID_MAX_LENGTH, fieldName, maxlength);
 	    }
 		return null;
 	}
@@ -183,12 +183,12 @@ public class User extends AbstractIdResource {
 	public String validatePassoword() {
 		// Mandatory
 		if (this.credential==null || this.credential.getPassword()==null || this.credential.getPassword().length()==0)
-			return String.format(MSG_TEMPALTE_MANDATORY, "Password");
+			return String.format(MSG_TEMPLATE_MANDATORY, "Password");
 		
 		// Range check
 		String password = this.credential.getPassword();
 	    if (password.length() < MIN_LENGTH_PASSWORD || password.length() > MAX_LENGTH_PASSWORD) {
-	    	return String.format(MSG_TEMPALTE_INVALID_MINMAX_LENGTH, "passowrd", MIN_LENGTH_PASSWORD, MAX_LENGTH_PASSWORD);
+	    	return String.format(MSG_TEMPLATE_INVALID_MINMAX_LENGTH, "passowrd", MIN_LENGTH_PASSWORD, MAX_LENGTH_PASSWORD);
 	    }
         // length OK, check password strength.
         int strength = Utils.calculatePasswordStrength(password);
@@ -196,7 +196,7 @@ public class User extends AbstractIdResource {
         case 0:
         case 1:
         case 2:
-        	return MSG_TEMPALTE_INVALID_PASSWORD;
+        	return MSG_TEMPLATE_INVALID_PASSWORD;
         default:
             break;
         }
