@@ -78,7 +78,7 @@ public abstract class UserDAO implements DaoBase<User>, Transactional<UserDAO> {
 			"INSERT INTO email " +
 			"(user_id, email_id, email_type_id, address, primary_ind, status_id) VALUES " +
 			"(:userId, :emailId, 1, :email, 1, 2)")
-	public abstract long registerEMail(@Bind("userId") long userId, @Bind("emailId") long emailId, @Bind("email") String email);
+	public abstract long registerEmail(@Bind("userId") long userId, @Bind("emailId") long emailId, @Bind("email") String email);
 	
 	
 	private SequenceDAO sequenceDao;
@@ -110,10 +110,10 @@ public abstract class UserDAO implements DaoBase<User>, Transactional<UserDAO> {
 		createUser(user);
 		createSecurityUser(
 			userId, user.getHandle(),
-			Utils.encodePassword(user.getCredential().getPassword(), "users"));
+			user.getCredential().encodePassword());
 		
 		Long emailId = sequenceDao.nextVal("sequence_email_seq");
-		registerEMail(userId, emailId, user.getEmail());
+		registerEmail(userId, emailId, user.getEmail());
 		
 		// TODO: 
 		//createCoder("'informixoltp':", userId);
@@ -121,12 +121,19 @@ public abstract class UserDAO implements DaoBase<User>, Transactional<UserDAO> {
 		// TODO:
 		// add member to initial groups
 		
-		ldapService.registerMember(Long.parseLong(userId.toString()),
+		registerLDAP(user);
+		
+		return user.getId();
+	}
+
+	public void registerLDAP(User user) {
+		if(user==null)
+			throw new IllegalArgumentException("user must be specified.");
+		
+		ldapService.registerMember(Long.parseLong(user.getId().toString()),
 									user.getHandle(),
 									user.getCredential().getPassword(),
 									user.isActive() ? MemberStatus.ACTIVATED : MemberStatus.UNACTIVATED);
-		
-		return user.getId();
 	}
 	
 	@Override
