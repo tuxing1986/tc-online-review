@@ -1,6 +1,7 @@
 package com.appirio.tech.core.service.identity.representation;
 
 import com.appirio.tech.core.api.v3.model.AbstractIdResource;
+import com.appirio.tech.core.service.identity.util.Utils;
 
 public class Credential extends AbstractIdResource {
 
@@ -22,5 +23,12 @@ public class Credential extends AbstractIdResource {
 
 	public void setActivationCode(String activationCode) {
 		this.activationCode = activationCode;
+	}
+
+	// TODO:
+	public String encodePassword() {
+		if(this.password==null)
+			return null;
+		return Utils.encodePassword(this.password, "users");
 	}
 }

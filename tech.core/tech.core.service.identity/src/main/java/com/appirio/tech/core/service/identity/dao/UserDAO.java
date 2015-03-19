@@ -78,7 +78,7 @@ public abstract class UserDAO implements DaoBase<User>, Transactional<UserDAO> {
 			"INSERT INTO email " +
 			"(user_id, email_id, email_type_id, address, primary_ind, status_id) VALUES " +
 			"(:userId, :emailId, 1, :email, 1, 2)")
-	public abstract long registerEMail(@Bind("userId") long userId, @Bind("emailId") long emailId, @Bind("email") String email);
+	public abstract long registerEmail(@Bind("userId") long userId, @Bind("emailId") long emailId, @Bind("email") String email);
 	
 	
 	private SequenceDAO sequenceDao;
@@ -103,17 +103,21 @@ public abstract class UserDAO implements DaoBase<User>, Transactional<UserDAO> {
 
 	@Transaction(TransactionIsolationLevel.READ_COMMITTED)
 	public TCID register(User user) {
-
+		if(sequenceDao==null)
+			throw new IllegalStateException("sequenceDao is not specified.");
+		if(ldapService==null)
+			throw new IllegalStateException("ldapService is not specified.");
+		
 		Long userId = sequenceDao.nextVal("sequence_user_seq");
 
 		user.setId(new TCID(userId));
 		createUser(user);
 		createSecurityUser(
 			userId, user.getHandle(),
-			Utils.encodePassword(user.getCredential().getPassword(), "users"));
+			user.getCredential().encodePassword());
 		
 		Long emailId = sequenceDao.nextVal("sequence_email_seq");
-		registerEMail(userId, emailId, user.getEmail());
+		registerEmail(userId, emailId, user.getEmail());
 		
 		// TODO: 
 		//createCoder("'informixoltp':", userId);
@@ -121,12 +125,24 @@ public abstract class UserDAO implements DaoBase<User>, Transactional<UserDAO> {
 		// TODO:
 		// add member to initial groups
 		
-		ldapService.registerMember(Long.parseLong(userId.toString()),
+		registerLDAP(user);
+		
+		return user.getId();
+	}
+
+	public void registerLDAP(User user) {
+		if(user==null)
+			throw new IllegalArgumentException("user must be specified.");
+		
+		ldapService.registerMember(Long.parseLong(user.getId().toString()),
 									user.getHandle(),
 									user.getCredential().getPassword(),
 									user.isActive() ? MemberStatus.ACTIVATED : MemberStatus.UNACTIVATED);
-		
-		return user.getId();
+	}
+	
+	public boolean handleExists(String handle) {
+		User user = findUserByHandle(handle);
+		return user != null;
 	}
 	
 	@Override
@@ -143,20 +159,16 @@ public abstract class UserDAO implements DaoBase<User>, Transactional<UserDAO> {
 
 	@Override
 	public TCID insert(User user) throws Exception {
-		return null;
+		throw new UnsupportedOperationException("Not implemented yet.");
 	}
 
 	@Override
 	public TCID update(User user) throws Exception {
-		return null;
+		throw new UnsupportedOperationException("Not implemented yet.");
 	}
 
 	@Override
 	public void delete(TCID id) throws Exception {
-	}
-	
-	public boolean handleExists(String handle) {
-		User user = findUserByHandle(handle);
-		return user != null;
+		throw new UnsupportedOperationException("Not implemented yet.");
 	}
 }
