@@ -35,7 +35,7 @@ import com.codahale.metrics.annotation.Timed;
 
 @Path("users")
 @Produces(MediaType.APPLICATION_JSON)
-public class UserResource implements GetResource<User>, DDLResource {
+public class UserResource implements GetResource<User>, DDLResource<User> {
 
 	protected UserDAO userDao;
 	
@@ -80,22 +80,22 @@ public class UserResource implements GetResource<User>, DDLResource {
 	@Timed
 	public ApiResponse createObject(
 			@Auth(required=false) AuthUser authUser,
-			@Valid PostPutRequest postRequest,
+			@Valid PostPutRequest<User> postRequest,
 			@Context HttpServletRequest request) throws Exception {
 		
-		User user = (User)postRequest.getParamObject(User.class);
+		User user = postRequest.getParam();
 		String error = user.validate();
-		if(error==null)
+		if (error == null)
 			error = validateHandle(user.getHandle());
-		if(error==null)
+		if (error == null)
 			error = validateEmail(user.getEmail());
-        if(error!=null) {
-        	throw new APIRuntimeException(HttpServletResponse.SC_BAD_REQUEST, error);
-        }
-        
+		if (error != null) {
+			throw new APIRuntimeException(HttpServletResponse.SC_BAD_REQUEST, error);
+		}
+
 		user.setActive(false);
 		userDao.register(user);
-		
+
 		return ApiResponseFactory.createResponse(user);
 	}
 
@@ -106,7 +106,7 @@ public class UserResource implements GetResource<User>, DDLResource {
 	public ApiResponse updateObject(
 			@Auth AuthUser authUser,
 			@PathParam("resourceId") String resourceId,
-			@Valid PostPutRequest putRequest,
+			@Valid PostPutRequest<User> putRequest,
 			@Context HttpServletRequest request) throws Exception {
 		//TODO:
 		throw new APIRuntimeException(HttpServletResponse.SC_NOT_IMPLEMENTED);

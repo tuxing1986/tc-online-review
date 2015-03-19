@@ -38,8 +38,8 @@ public class UserResourceTest {
 		
 		
 		// Creating mock: PostPutRequest - give mock user
-		PostPutRequest param = Mockito.mock(PostPutRequest.class);
-		Mockito.when(param.getParamObject(User.class)).thenReturn(user);
+		PostPutRequest<User> param = Mockito.mock(PostPutRequest.class);
+		Mockito.when(param.getParam()).thenReturn(user);
 
 		// Creating mock: UserDAO - always judge that there's no duplication in input data.
 		UserDAO userDao = Mockito.mock(UserDAO.class);
@@ -74,8 +74,8 @@ public class UserResourceTest {
 		Mockito.when(user.validate()).thenReturn(null);
 		
 		// Creating mock: PostPutRequest - give mock user
-		PostPutRequest param = Mockito.mock(PostPutRequest.class);
-		Mockito.when(param.getParamObject(User.class)).thenReturn(user);
+		PostPutRequest<User> param = Mockito.mock(PostPutRequest.class);
+		Mockito.when(param.getParam()).thenReturn(user);
 		
 		// Creating mock: UserDAO - always judge that the handle is duplicated.
 		UserDAO userDao = Mockito.mock(UserDAO.class);
@@ -109,8 +109,8 @@ public class UserResourceTest {
 		Mockito.when(user.validate()).thenReturn(null);
 		
 		// Creating mock: PostPutRequest - give mock user
-		PostPutRequest param = Mockito.mock(PostPutRequest.class);
-		Mockito.when(param.getParamObject(User.class)).thenReturn(user);
+		PostPutRequest<User> param = Mockito.mock(PostPutRequest.class);
+		Mockito.when(param.getParam()).thenReturn(user);
 		
 		// Creating mock: UserDAO - always judge that the handle is duplicated.
 		UserDAO userDao = Mockito.mock(UserDAO.class);

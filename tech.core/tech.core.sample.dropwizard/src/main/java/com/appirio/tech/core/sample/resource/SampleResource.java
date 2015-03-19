@@ -49,7 +49,7 @@ import com.codahale.metrics.annotation.Timed;
  */
 @Path("apisamples")
 @Produces(MediaType.APPLICATION_JSON)
-public class SampleResource implements GetResource<Sample>, DDLResource {
+public class SampleResource implements GetResource<Sample>, DDLResource<Sample> {
 
 	private InMemoryUserStorage storage = InMemoryUserStorage.instance();
 	
@@ -134,10 +134,10 @@ public class SampleResource implements GetResource<Sample>, DDLResource {
 	@Timed
 	public ApiResponse createObject(
 			@Auth AuthUser authUser,
-			@Valid PostPutRequest postRequest,
+			@Valid PostPutRequest<Sample> postRequest,
 			@Context HttpServletRequest request)
 			throws Exception {
-		Sample object = (Sample)postRequest.getParamObject(Sample.class);
+		Sample object = postRequest.getParam();
 		object.setCreatedAt(new DateTime());
 		object.setModifiedAt(new DateTime());
 		return ApiResponseFactory.createResponse(storage.insertUser(object).getId());
@@ -150,9 +150,9 @@ public class SampleResource implements GetResource<Sample>, DDLResource {
 	public ApiResponse updateObject(
 			@Auth AuthUser authUser,
 			@PathParam("resourceId") String resourceId,
-			@Valid PostPutRequest putRequest,
+			@Valid PostPutRequest<Sample> putRequest,
 			@Context HttpServletRequest request) throws Exception {
-		Sample object = (Sample)putRequest.getParamObject(Sample.class);
+		Sample object = putRequest.getParam();
 		object.setModifiedAt(new DateTime());
 		storage.updateUser(object);
 		return ApiResponseFactory.createResponse(object.getId());
