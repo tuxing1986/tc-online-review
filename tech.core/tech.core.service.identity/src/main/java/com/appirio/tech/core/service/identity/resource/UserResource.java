@@ -83,36 +83,19 @@ public class UserResource implements GetResource<User>, DDLResource<User> {
 			@Valid PostPutRequest<User> postRequest,
 			@Context HttpServletRequest request) throws Exception {
 		
-<<<<<<< HEAD
 		User user = postRequest.getParam();
-		List<String> messages = new LinkedList<String>();
-        validateHandle(user.getHandle(), messages, userDao);
-        validateEmail(user.getEmail(), messages, userDao);
-        validatePassword(user.getCredential()!=null ? user.getCredential().getPassword() : "", messages);
-		/*
-		// TODO: validate user
-            validateFirstName();
-            validateLastName();
-            validateCountry();
-            validateVerificationCode();
-		 */
-        if(messages.size()>0) {
-        	throw new APIRuntimeException(HttpServletResponse.SC_BAD_REQUEST, messages.get(0));
-=======
-		User user = (User)postRequest.getParamObject(User.class);
 		String error = user.validate();
-		if(error==null)
+		if (error == null)
 			error = validateHandle(user.getHandle());
-		if(error==null)
+		if (error == null)
 			error = validateEmail(user.getEmail());
-        if(error!=null) {
-        	throw new APIRuntimeException(HttpServletResponse.SC_BAD_REQUEST, error);
->>>>>>> dev
-        }
-        
+		if (error != null) {
+			throw new APIRuntimeException(HttpServletResponse.SC_BAD_REQUEST, error);
+		}
+
 		user.setActive(false);
 		userDao.register(user);
-		
+
 		return ApiResponseFactory.createResponse(user);
 	}
 
