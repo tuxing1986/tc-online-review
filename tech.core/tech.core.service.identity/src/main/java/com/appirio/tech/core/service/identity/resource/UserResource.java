@@ -1,9 +1,7 @@
 package com.appirio.tech.core.service.identity.resource;
 
+import static com.appirio.tech.core.service.identity.util.Constants.*;
 import io.dropwizard.auth.Auth;
-
-import java.util.LinkedList;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,7 +29,6 @@ import com.appirio.tech.core.api.v3.response.ApiResponseFactory;
 import com.appirio.tech.core.auth.AuthUser;
 import com.appirio.tech.core.service.identity.dao.UserDAO;
 import com.appirio.tech.core.service.identity.representation.User;
-import com.appirio.tech.core.service.identity.util.Utils;
 import com.appirio.tech.core.service.identity.util.idgen.SequenceDAO;
 import com.appirio.tech.core.service.identity.util.ldap.LDAPService;
 import com.codahale.metrics.annotation.Timed;
@@ -86,6 +83,7 @@ public class UserResource implements GetResource<User>, DDLResource<User> {
 			@Valid PostPutRequest<User> postRequest,
 			@Context HttpServletRequest request) throws Exception {
 		
+<<<<<<< HEAD
 		User user = postRequest.getParam();
 		List<String> messages = new LinkedList<String>();
         validateHandle(user.getHandle(), messages, userDao);
@@ -100,10 +98,19 @@ public class UserResource implements GetResource<User>, DDLResource<User> {
 		 */
         if(messages.size()>0) {
         	throw new APIRuntimeException(HttpServletResponse.SC_BAD_REQUEST, messages.get(0));
+=======
+		User user = (User)postRequest.getParamObject(User.class);
+		String error = user.validate();
+		if(error==null)
+			error = validateHandle(user.getHandle());
+		if(error==null)
+			error = validateEmail(user.getEmail());
+        if(error!=null) {
+        	throw new APIRuntimeException(HttpServletResponse.SC_BAD_REQUEST, error);
+>>>>>>> dev
         }
         
-		//TODO:
-		user.setActive(true);
+		user.setActive(false);
 		userDao.register(user);
 		
 		return ApiResponseFactory.createResponse(user);
@@ -134,50 +141,26 @@ public class UserResource implements GetResource<User>, DDLResource<User> {
 		throw new APIRuntimeException(HttpServletResponse.SC_NOT_IMPLEMENTED);
 	}
 
-	
-    private void validateHandle(String handle, List<String> messages, UserDAO userDao) {
-    	if(handle == null || handle.length()==0) {
-            messages.add("Handle is requried");
-            return;
-    	}
-        // Check if the handle is invalid.
-        String result = Utils.validateHandle(handle);
-        if (null != result) {
-            messages.add(result);
-        } else {
-            if (userDao.handleExists(handle)) {
-                messages.add("Handle '" + handle + "' has already been taken");
-            }
-        }
+    protected String validateHandle(String handle) {
+    	if (this.userDao==null)
+    		throw new IllegalArgumentException("userDao is not specified.");
+    	if (handle==null || handle.length()==0)
+    		throw new IllegalArgumentException("handle must be specified.");
+    	
+        if (userDao.handleExists(handle))
+           return String.format(MSG_TEMPLATE_DUPLICATED_HANDLE, handle);
+        return null;
     }	
 
-    private void validateEmail(String email, List<String> messages, UserDAO userDao) {
-        // validate email.
-        if (email==null || email.length()==0) {
-            messages.add("Email is required");
-            return;
-        }
-        String result = Utils.validateEmail(email);
-        if (null != result) {
-            messages.add(result);
-            return;
-        }
+    protected String validateEmail(String email) {
+    	if (this.userDao==null)
+    		throw new IllegalArgumentException("userDao is not specified.");
+    	if (email==null || email.length()==0)
+    		throw new IllegalArgumentException("email must be specified.");
+    	
         User user = userDao.findUserByEmail(email);
-        if (user != null) {
-            messages.add("The email - '" + email + "' is already registered, please use another one.");
-        }
-    }
-    
-    private void validatePassword(String password, List<String> messages){
-    	if (password==null || password.length()==0) {
-            messages.add("Password is required");
-            return;
-        }
-    	String result = Utils.validatePassword(password);
-        if (null != result) {
-            messages.add(result);
-            return;
-        }
-        return;
+        if (user != null)
+            return String.format(MSG_TEMPLATE_DUPLICATED_EMAIL, email);
+        return null;
     }
 }
