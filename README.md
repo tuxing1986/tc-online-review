@@ -23,9 +23,9 @@ http://api.topcoder-dev.com/pub/index.html
 # API Shared Library Basics
 
 API shared library have 2 goals in mind.
-1. Provide methods and wrapper objects to simplify the resource(interface) development to match V3 API protocol defined in this doc (https://docs.google.com/a/appirio.com/presentation/d/15pucEI0MHj9y778EyaAWGh4MBH-I73i1-GS0ir7FhxE/edit)   
-2. Provide authentication library to hook with Jersey injection (dropwizard @Auth)   
-3. Other micro services should have ability to override or ignore the usage of shared library, in case of edge case scenario. In this case, each micro services will need to implement their own V3 protocol handling methods.
+  1. Provide methods and wrapper objects to simplify the resource(interface) development to match V3 API protocol defined in this doc (https://docs.google.com/a/appirio.com/presentation/d/15pucEI0MHj9y778EyaAWGh4MBH-I73i1-GS0ir7FhxE/edit)
+  2. Provide authentication library to hook with Jersey injection (dropwizard @Auth)
+  3. Other micro services should have ability to override or ignore the usage of shared library, in case of edge case scenario. In this case, each micro services will need to implement their own V3 protocol handling methods.
 
 # Including Shared Library into Maven pom
 
@@ -91,17 +91,18 @@ Shared library has 2 interfaces for convenience, so that developers know the int
 - com.appirio.tech.core.api.v3.resource.DDLResource
 
 com.appirio.tech.core.sample.resource.SampleResource class holds the methods.
-Few parameters worth noting here:
-1.  @Auth AuthUser  
-  * The method handles JWT authentication. Refer dropwizard authentication docs for the details.  
-2. @APIFieldParam(repClass = Sample.class) FieldSelector  
-  * FieldSelector holds parameters passed from request for single resource retrieval (fields parameter in V3 API).  
-  * repClass is the POJO representation class. Request injection class will parse parameter according to the specified representation class.  
-3. @APIQueryParam(repClass = Sample.class) QueryParameter  
-  * QueryParameter holds parameters passed from request for multiple resource retrieval (@see V3 API: GET Reserved Parameters)  
-  * repClass is the POJO representation class. Request injection class will parse parameter according to the specified representation class.  
-4. @Valid PostPutRequest  
-  * PostPutRequest holds post and put representation class as specified in V3 API doc
+Few parameters worth noting here:   
+  1.  @Auth AuthUser  
+    * The method handles JWT authentication. Refer dropwizard authentication docs for the details.
+  2.  @APIFieldParam(repClass = Sample.class) FieldSelector  
+    * FieldSelector holds parameters passed from request for single resource retrieval (fields parameter in V3 API).
+    * repClass is the POJO representation class. Request injection class will parse parameter according to the specified representation class.  
+  3.  @APIQueryParam(repClass = Sample.class) QueryParameter  
+    * QueryParameter holds parameters passed from request for multiple resource retrieval (@see V3 API: GET Reserved Parameters)  
+    * repClass is the POJO representation class. Request injection class will parse parameter according to the specified representation class.  
+  4.  @Valid PostPutRequest<Sample>  
+    * PostPutRequest<T> holds post and put representation class as specified in V3 API doc
+    * Provide POJO class in generics
 
 #### Response
 
