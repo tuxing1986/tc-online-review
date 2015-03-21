@@ -23,8 +23,8 @@ http://api.topcoder-dev.com/pub/index.html
 # API Shared Library Basics
 
 API shared library have 2 goals in mind.
-1. Provide methods and wrapper objects to simplify the resource(interface) development to match V3 API protocol defined in this doc (https://docs.google.com/a/appirio.com/presentation/d/15pucEI0MHj9y778EyaAWGh4MBH-I73i1-GS0ir7FhxE/edit)
-2. Provide authentication library to hook with Jersey injection (dropwizard @Auth)
+1. Provide methods and wrapper objects to simplify the resource(interface) development to match V3 API protocol defined in this doc (https://docs.google.com/a/appirio.com/presentation/d/15pucEI0MHj9y778EyaAWGh4MBH-I73i1-GS0ir7FhxE/edit)   
+2. Provide authentication library to hook with Jersey injection (dropwizard @Auth)   
 3. Other micro services should have ability to override or ignore the usage of shared library, in case of edge case scenario. In this case, each micro services will need to implement their own V3 protocol handling methods.
 
 # Including Shared Library into Maven pom
@@ -54,7 +54,7 @@ Shared library will be included using following dependency.
       <dependency>
         <groupId>com.appirio.tech.core.api</groupId>
         <artifactId>tech.core.api</artifactId>
-        <version>API-3.0.0.1-SNAPSHOT</version>
+        <version>API-3.0.0.2-SNAPSHOT</version>
       </dependency>
     </dependencies>
 
