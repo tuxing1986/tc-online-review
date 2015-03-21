@@ -6,14 +6,19 @@ This repository holds shared library for appirio platform's V3 API and authentic
 
 # Repositories
 
-There are 2 core projects in this repository.
+There are 2 core projects in this repository.  
+Use "dev" branch to parse and include for the latest code.
 
-- tech.core.api -- holds shared library for other teams to use
-- tech.core.sample.dropwizard -- a sample dropwizard project showing how to use shared library
+- tech.core.api -- Holds shared library for other teams to use for V3 API and Authentication scheme.
+- tech.core.sample.dropwizard -- A sample dropwizard project showing how to use shared library.
+- tech.core.service.identity -- Identity micro service components. There is no need to build or run this project as library and sample is all you need to include for other teams.
 
 # Building and Running Sample Project
 
-See "Core Service: Development Environment Setup" document (https://docs.google.com/a/appirio.com/document/d/1e2aGnbXZgHvXZQ2GbGYksN8n0jiWxKRMbzaNc2QZBuA/edit#heading=h.ug5qzkdm27d6)
+See "Core Service: Development Environment Setup" document (https://docs.google.com/a/appirio.com/document/d/1e2aGnbXZgHvXZQ2GbGYksN8n0jiWxKRMbzaNc2QZBuA/edit#heading=h.ug5qzkdm27d6)   
+
+There is also Jenkins automatic build running for Sample project to test out quickly in dev environment. Goto  
+http://api.topcoder-dev.com/pub/index.html
 
 # API Shared Library Basics
 
