@@ -6,21 +6,26 @@ This repository holds shared library for appirio platform's V3 API and authentic
 
 # Repositories
 
-There are 2 core projects in this repository.
+There are 2 core projects in this repository.  
+Use "dev" branch to parse and include for the latest code.
 
-- tech.core.api -- holds shared library for other teams to use
-- tech.core.sample.dropwizard -- a sample dropwizard project showing how to use shared library
+- tech.core.api -- Holds shared library for other teams to use for V3 API and Authentication scheme.
+- tech.core.sample.dropwizard -- A sample dropwizard project showing how to use shared library.
+- tech.core.service.identity -- Identity micro service components. There is no need to build or run this project as library and sample is all you need to include for other teams.
 
 # Building and Running Sample Project
 
-See "Core Service: Development Environment Setup" document (https://docs.google.com/a/appirio.com/document/d/1e2aGnbXZgHvXZQ2GbGYksN8n0jiWxKRMbzaNc2QZBuA/edit#heading=h.ug5qzkdm27d6)
+See "Core Service: Development Environment Setup" document (https://docs.google.com/a/appirio.com/document/d/1e2aGnbXZgHvXZQ2GbGYksN8n0jiWxKRMbzaNc2QZBuA/edit#heading=h.ug5qzkdm27d6)   
+
+There is also Jenkins automatic build running for Sample project to test out quickly in dev environment. Goto  
+http://api.topcoder-dev.com/pub/index.html
 
 # API Shared Library Basics
 
 API shared library have 2 goals in mind.
-1. Provide methods and wrapper objects to simplify the resource(interface) development to match V3 API protocol defined in this doc (https://docs.google.com/a/appirio.com/presentation/d/15pucEI0MHj9y778EyaAWGh4MBH-I73i1-GS0ir7FhxE/edit)
-2. Provide authentication library to hook with Jersey injection (dropwizard @Auth)
-3. Other micro services should have ability to override or ignore the usage of shared library, in case of edge case scenario. In this case, each micro services will need to implement their own V3 protocol handling methods.
+  1. Provide methods and wrapper objects to simplify the resource(interface) development to match V3 API protocol defined in this doc (https://docs.google.com/a/appirio.com/presentation/d/15pucEI0MHj9y778EyaAWGh4MBH-I73i1-GS0ir7FhxE/edit)
+  2. Provide authentication library to hook with Jersey injection (dropwizard @Auth)
+  3. Other micro services should have ability to override or ignore the usage of shared library, in case of edge case scenario. In this case, each micro services will need to implement their own V3 protocol handling methods.
 
 # Including Shared Library into Maven pom
 
@@ -49,7 +54,7 @@ Shared library will be included using following dependency.
       <dependency>
         <groupId>com.appirio.tech.core.api</groupId>
         <artifactId>tech.core.api</artifactId>
-        <version>API-3.0.0.1-SNAPSHOT</version>
+        <version>API-3.0.0.2-SNAPSHOT</version>
       </dependency>
     </dependencies>
 
@@ -86,17 +91,18 @@ Shared library has 2 interfaces for convenience, so that developers know the int
 - com.appirio.tech.core.api.v3.resource.DDLResource
 
 com.appirio.tech.core.sample.resource.SampleResource class holds the methods.
-Few parameters worth noting here:
-1.  @Auth AuthUser  
-  * The method handles JWT authentication. Refer dropwizard authentication docs for the details.  
-2. @APIFieldParam(repClass = Sample.class) FieldSelector  
-  * FieldSelector holds parameters passed from request for single resource retrieval (fields parameter in V3 API).  
-  * repClass is the POJO representation class. Request injection class will parse parameter according to the specified representation class.  
-3. @APIQueryParam(repClass = Sample.class) QueryParameter  
-  * QueryParameter holds parameters passed from request for multiple resource retrieval (@see V3 API: GET Reserved Parameters)  
-  * repClass is the POJO representation class. Request injection class will parse parameter according to the specified representation class.  
-4. @Valid PostPutRequest  
-  * PostPutRequest holds post and put representation class as specified in V3 API doc
+Few parameters worth noting here:   
+  1.  @Auth AuthUser  
+    * The method handles JWT authentication. Refer dropwizard authentication docs for the details.
+  2.  @APIFieldParam(repClass = Sample.class) FieldSelector  
+    * FieldSelector holds parameters passed from request for single resource retrieval (fields parameter in V3 API).
+    * repClass is the POJO representation class. Request injection class will parse parameter according to the specified representation class.  
+  3.  @APIQueryParam(repClass = Sample.class) QueryParameter  
+    * QueryParameter holds parameters passed from request for multiple resource retrieval (@see V3 API: GET Reserved Parameters)  
+    * repClass is the POJO representation class. Request injection class will parse parameter according to the specified representation class.  
+  4.  @Valid PostPutRequest<Sample>  
+    * PostPutRequest<T> holds post and put representation class as specified in V3 API doc
+    * Provide POJO class in generics
 
 #### Response
 

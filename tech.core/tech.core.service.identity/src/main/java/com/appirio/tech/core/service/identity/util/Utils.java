@@ -1,5 +1,19 @@
 package com.appirio.tech.core.service.identity.util;
 
+import static com.appirio.tech.core.service.identity.util.Constants.ALPHABET_WHITESPACE_EN;
+import static com.appirio.tech.core.service.identity.util.Constants.EMAIL_PATTERN;
+import static com.appirio.tech.core.service.identity.util.Constants.HANDLE_ALPHABET;
+import static com.appirio.tech.core.service.identity.util.Constants.HANDLE_PUNCTUATION;
+import static com.appirio.tech.core.service.identity.util.Constants.LOWER_CASE_PATTERN;
+import static com.appirio.tech.core.service.identity.util.Constants.MAX_LENGTH_EMAIL;
+import static com.appirio.tech.core.service.identity.util.Constants.MAX_LENGTH_HANDLE;
+import static com.appirio.tech.core.service.identity.util.Constants.MAX_LENGTH_PASSWORD;
+import static com.appirio.tech.core.service.identity.util.Constants.MIN_LENGTH_HANDLE;
+import static com.appirio.tech.core.service.identity.util.Constants.MIN_LENGTH_PASSWORD;
+import static com.appirio.tech.core.service.identity.util.Constants.NUMBER_PATTERN;
+import static com.appirio.tech.core.service.identity.util.Constants.SYMBOL_PATTERN;
+import static com.appirio.tech.core.service.identity.util.Constants.UPPER_CASE_PATTERN;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,53 +44,13 @@ public class Utils {
 		}
 	}
 
-	public static final int MAX_EMAIL_LENGTH = 100;
-	
-	public static final int MAX_HANDLE_LENGTH = 15;
 
-	public static final int MIN_HANDLE_LENGTH = 2;
-	
-    public static final int MAX_PASSWORD_LENGTH = 30;
-
-    public static final int MIN_PASSWORD_LENGTH = 7;
-
-	public static final String ALPHABET_ALPHA_UPPER_EN = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-	public static final String ALPHABET_ALPHA_LOWER_EN = "abcdefghijklmnopqrstuvwxyz";
-
-	public static final String ALPHABET_ALPHA_EN = ALPHABET_ALPHA_LOWER_EN + ALPHABET_ALPHA_UPPER_EN;
-	
-	public static final String ALPHABET_WHITESPACE_EN = " \t\r\n";
-	
-	public static final String ALPHABET_DIGITS_EN = "0123456789";
-
-	/*
-    public static final String EMAIL_REGEX = "\\b(^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@([A-Za-z0-9-])+((\\.com)"
-            + "|(\\.net)|(\\.org)|(\\.info)|(\\.edu)|(\\.mil)|(\\.gov)|(\\.biz)|(\\.ws)|(\\.us)|(\\.tv)|(\\.cc)"
-            + "|(\\.aero)|(\\.arpa)|(\\.coop)|(\\.int)|(\\.jobs)|(\\.museum)|(\\.name)|(\\.pro)|(\\.travel)|(\\.nato)"
-            + "|(\\..{2,3})|(\\.([A-Za-z0-9-])+\\..{2,3}))$)\\b";
-    */
-    public static final String EMAIL_REGEX = "(^[\\+_A-Za-z0-9-]+(\\.[\\+_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,}$))";
-    public static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
-
-    private static final Pattern LOWER_CASE_PATTERN = Pattern.compile("[a-z]");
-
-    private static final Pattern UPPER_CASE_PATTERN = Pattern.compile("[A-Z]");
-
-    private static final Pattern SYMBOL_PATTERN = Pattern.compile("\\p{Punct}");
-
-    private static final Pattern NUMBER_PATTERN = Pattern.compile("\\d");
-
-	public final static String HANDLE_PUNCTUATION = "-_.{}[]";
-
-	public final static String HANDLE_ALPHABET = ALPHABET_ALPHA_EN + ALPHABET_DIGITS_EN + HANDLE_PUNCTUATION;
-	
 	public static String validateHandle(String handle)  {
 
 		final int handleLen = handle.length();
-        if (handleLen > MAX_HANDLE_LENGTH || handleLen < MIN_HANDLE_LENGTH) {
-            return "Length of handle in character should be between " + MIN_HANDLE_LENGTH
-                + " and" + MAX_HANDLE_LENGTH;
+        if (handleLen > MAX_LENGTH_HANDLE || handleLen < MIN_LENGTH_HANDLE) {
+            return "Length of handle in character should be between " + MIN_LENGTH_HANDLE
+                + " and" + MAX_LENGTH_HANDLE;
         }
 		if (handle.contains(" ")) {
 			return "Handle may not contain a space";
@@ -98,8 +72,8 @@ public class Utils {
 	
     public static String validateEmail(String email) {
         
-        if (email.length() > MAX_EMAIL_LENGTH) {
-            return "Maxiumum lenght of email address is " + MAX_EMAIL_LENGTH;
+        if (email.length() > MAX_LENGTH_EMAIL) {
+            return "Maxiumum lenght of email address is " + MAX_LENGTH_EMAIL;
         }
         Matcher matcher = EMAIL_PATTERN.matcher(email);
         if (!matcher.matches()) {
@@ -113,14 +87,13 @@ public class Utils {
             return "Password is required";
         
         final int passwordLen = password.length();
-        if (passwordLen > MAX_PASSWORD_LENGTH || passwordLen < MIN_PASSWORD_LENGTH)
-            return "Length of password should be between " + MIN_PASSWORD_LENGTH + " and " + MAX_PASSWORD_LENGTH;
+        if (passwordLen > MAX_LENGTH_PASSWORD || passwordLen < MIN_LENGTH_PASSWORD)
+            return "Length of password should be between " + MIN_LENGTH_PASSWORD + " and " + MAX_LENGTH_PASSWORD;
 
         // length OK, check password strength.
         int strength = calculatePasswordStrength(password);
         switch (strength) {
-        case -1:
-            return "Password cannot end with a number";
+        case 0:
         case 1:
         case 2:
         	return "Password is too weak";
@@ -133,11 +106,6 @@ public class Utils {
     public static int calculatePasswordStrength(String password) {
         int result = 0;
         password = password.trim();
-
-        final int len = password.length();
-        if (password.substring(len - 1).matches("\\d")) {
-            return -1;
-        }
 
         // Check if it has lower case characters.
         Matcher matcher = LOWER_CASE_PATTERN.matcher(password);
