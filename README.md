@@ -54,7 +54,7 @@ Shared library will be included using following dependency.
       <dependency>
         <groupId>com.appirio.tech.core.api</groupId>
         <artifactId>tech.core.api</artifactId>
-        <version>API-3.0.0.3-SNAPSHOT</version>
+        <version>API-3.0.0.6-SNAPSHOT</version>
       </dependency>
     </dependencies>
 
@@ -115,3 +115,55 @@ All output should be wrapped to follow V3 API spec.
 The shared library is assumed to run from main() method of com.appirio.tech.core.api.v3.dropwizard.APIApplication.  
 The class will register and initiate libraries to follow V3 protocol. Also purses the class hierarchy to register Resource class that has Jersey's @Path annotation specified.  
 Application has the flexibility to extend this class to provide its own initializing methods, in case the advice is always call super() for initialize() and run() so that default libraries for API is registered correctly.
+
+
+### Version History
+
+<table>
+<tr><th>Version</th><th>Changes</th></tr>
+
+<tr><td>API-3.0.0.6-SNAPSHOT</td>
+<td>Additional user's attribute "handle" and "email" are added in JWT payload. </br>
+403 Forbidden is returned for logging-in attempt by non-active users. </br>
+<p>Related stories: </br>
+- https://appirio.atlassian.net/browse/COR-214</br>
+- https://appirio.atlassian.net/browse/COR-271</br>
+</p>
+</td></tr>
+
+<tr><td>API-3.0.0.5-SNAPSHOT</td>
+<td>Supports for the authorization.
+</td></tr>
+
+<tr><td>API-3.0.0.4-SNAPSHOT</td>
+<td>The request JSON supports "option" parameter. <br>
+Example:
+<pre>
+POST /v3/users
+{
+  "param": {
+    "handle": "jdoe",
+    ....
+  },
+  "options" : {
+    "afterActivationURL": "https://example.topcoder.com/url/redirected/after/activation"
+  }
+}
+</pre>
+<p>Related stories: </br>
+- https://appirio.atlassian.net/browse/COR-188
+</p>
+</td></tr>
+
+<tr><td>API-3.0.0.3-SNAPSHOT</td>
+<td>JWT payload contains the "iss" (issuer) claim which tells a domain where it's issued. (i.e. https://api.topcoder-dev.com) </br> In the authentication process, this is checked whther JWT token is created in the same domain.</br>
+This version does not have compatibility with the earlier versions.
+</td></tr>
+
+<tr><td>API-3.0.0.2-SNAPSHOT, API-3.0.0.1-SNAPSHOT</td>
+<td>Versions in the earliest stage. (Don't use them)
+</td></tr>
+
+</table>
+
+
