@@ -122,6 +122,19 @@ Application has the flexibility to extend this class to provide its own initiali
 <table>
 <tr><th>Version</th><th>Changes</th></tr>
 
+<tr><td>API-3.0.0.8-SNAPSHOT</td>
+<td>
+AuthUser contains roles which are extructed from JWT token.
+</br>
+<p>Related stories: </br>
+- https://appirio.atlassian.net/browse/COR-265</br>
+</p>
+</td></tr>
+
+<tr><td>API-3.0.0.7-SNAPSHOT</td>
+<td>
+</td></tr>
+
 <tr><td>API-3.0.0.6-SNAPSHOT</td>
 <td>Additional user's attribute "handle" and "email" are added in JWT payload. </br>
 403 Forbidden is returned for logging-in attempt by non-active users. </br>
