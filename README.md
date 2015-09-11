@@ -54,7 +54,7 @@ Shared library will be included using following dependency.
       <dependency>
         <groupId>com.appirio.tech.core.api</groupId>
         <artifactId>tech.core.api</artifactId>
-        <version>API-3.0.0.6-SNAPSHOT</version>
+        <version>API-3.0.0.8-SNAPSHOT</version>
       </dependency>
     </dependencies>
 
