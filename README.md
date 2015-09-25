@@ -124,7 +124,7 @@ Application has the flexibility to extend this class to provide its own initiali
 
 <tr><td>API-3.0.0.8-SNAPSHOT</td>
 <td>
-AuthUser contains roles which are extructed from JWT token.
+AuthUser contains roles which are extracted from JWT token.
 </br>
 <p>Related stories: </br>
 - https://appirio.atlassian.net/browse/COR-265</br>
