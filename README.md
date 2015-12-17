@@ -122,6 +122,15 @@ Application has the flexibility to extend this class to provide its own initiali
 <table>
 <tr><th>Version</th><th>Changes</th></tr>
 
+<tr><td>API-3.0.0.9-SNAPSHOT</td>
+<td>
+Supporting Validation on POST/OUT/PATCH request payload.
+</br>
+<p>
+PR#177(https://github.com/appirio-tech/tc1-api-core/pull/177)
+</p>
+</td></tr>
+
 <tr><td>API-3.0.0.8-SNAPSHOT</td>
 <td>
 AuthUser contains roles which are extracted from JWT token.
