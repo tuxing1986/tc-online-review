@@ -1,7 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <!-- <parent> <groupId>com.appirio.tech.core</groupId> <artifactId>tech.core</artifactId> <version>1.0-SNAPSHOT</version> </parent> -->
 
   <groupId>com.appirio.tech.core</groupId>
   <artifactId>service.identity</artifactId>
@@ -9,8 +8,8 @@
   <packaging>jar</packaging>
 
   <properties>
-    <dropwizard.version>0.7.1</dropwizard.version>
-    <amazon.aws.version>[1.6.12,1.7)</amazon.aws.version>
+    <amazon.aws.version>1.10.5.1</amazon.aws.version>
+    <jackson-version>[2.5.1,2.9.0)</jackson-version>
   </properties>
 
   <build>
@@ -21,63 +20,64 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.1</version>
         <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
       </plugin>
       <plugin>
-		<groupId>com.google.code.maven-replacer-plugin</groupId>
-		<artifactId>replacer</artifactId>
-		<version>1.5.3</version>
-		<executions>
-			<execution>
-				<phase>prepare-package</phase>
-				<goals>
-					<goal>replace</goal>
-				</goals>
-			</execution>
-		</executions>
-		<configuration>
-            <includes>
-                <include>${basedir}/target/**/*.yml</include>
-                <include>${basedir}/target/**/*.properties</include>
-            </includes>
-			<tokenValueMap>${basedir}/token.properties</tokenValueMap>
-		</configuration>
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>replacer</artifactId>
+        <version>1.5.3</version>
+        <executions>
+          <execution>
+            <phase>prepare-package</phase>
+              <goals>
+                <goal>replace</goal>
+              </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <includes>
+            <include>${basedir}/target/**/*.yml</include>
+            <include>${basedir}/target/**/*.properties</include>
+            <include>${basedir}/target/**/*.ini</include>
+          </includes>
+          <tokenValueMap>${basedir}/token.properties</tokenValueMap>
+        </configuration>
       </plugin>
       <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-shade-plugin</artifactId>
-          <version>1.6</version>
-          <configuration>
-              <createDependencyReducedPom>true</createDependencyReducedPom>
-              <filters>
-                  <filter>
-                      <artifact>*:*</artifact>
-                      <excludes>
-                          <exclude>META-INF/*.SF</exclude>
-                          <exclude>META-INF/*.DSA</exclude>
-                          <exclude>META-INF/*.RSA</exclude>
-                      </excludes>
-                  </filter>
-              </filters>
-          </configuration>
-          <executions>
-              <execution>
-                  <phase>package</phase>
-                  <goals>
-                      <goal>shade</goal>
-                  </goals>
-                  <configuration>
-                      <transformers>
-                          <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                          <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                              <mainClass>com.appirio.tech.core.service.identity.IdentityApplication</mainClass>
-                          </transformer>
-                      </transformers>
-                  </configuration>
-              </execution>
-          </executions>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>1.6</version>
+        <configuration>
+          <createDependencyReducedPom>true</createDependencyReducedPom>
+          <filters>
+            <filter>
+              <artifact>*:*</artifact>
+              <excludes>
+                <exclude>META-INF/*.SF</exclude>
+                <exclude>META-INF/*.DSA</exclude>
+                <exclude>META-INF/*.RSA</exclude>
+              </excludes>
+            </filter>
+          </filters>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>com.appirio.tech.core.service.identity.IdentityApplication</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
@@ -118,11 +118,27 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
-        <version>2.5.5</version>
+        <version>3.0.1</version>
         <configuration>
           <onlyAnalyze>com.appirio.tech.core.-</onlyAnalyze>
           <effort>Max</effort>
           <xmlOutput>true</xmlOutput>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>cobertura-maven-plugin</artifactId>
+        <version>2.7</version>
+        <configuration>
+          <formats>
+            <format>xml</format>
+            <format>html</format>
+          </formats>
+          <instrumentation>
+            <excludes>
+              <exclude>**/*Test*.class</exclude>
+            </excludes>
+          </instrumentation>
         </configuration>
       </plugin>
     </plugins>
@@ -130,9 +146,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.appirio.tech.core.api</groupId>
-      <artifactId>tech.core.api</artifactId>
-      <version>API-3.0.0.2-SNAPSHOT</version>
+      <groupId>com.topcoder</groupId>
+      <artifactId>core.api</artifactId>
+      <version>4.0.0</version>
     </dependency>
     <dependency>
       <groupId>org.antlr</groupId>
@@ -144,78 +160,158 @@
         <artifactId>com.springsource.com.informix.jdbc</artifactId>
         <version>3.0.0.JC3</version>
     </dependency>
+    <dependency>
+        <groupId>redis.clients</groupId>
+        <artifactId>jedis</artifactId>
+        <version>2.6.2</version>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>commons-net</groupId>
+        <artifactId>commons-net</artifactId>
+        <version>3.3</version>
+    </dependency>
+    <!-- 
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-email</artifactId>
+        <version>1.3.3</version>
+    </dependency> -->
 
     <dependency>
-      <groupId>com.topcoder</groupId>
+      <groupId>com.topcoder.legacy</groupId>
       <artifactId>security</artifactId>
       <version>1.0.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/security/security.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>com.topcoder</groupId>
+      <groupId>com.topcoder.legacy</groupId>
       <artifactId>base_exception</artifactId>
       <version>2.0.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/security/base_exception-2.0.0.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>com.topcoder</groupId>
+      <groupId>com.topcoder.legacy</groupId>
       <artifactId>configuration_manager</artifactId>
       <version>1.0.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/security/configuration_manager.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>com.topcoder</groupId>
+      <groupId>com.topcoder.legacy</groupId>
       <artifactId>db_connection_factory</artifactId>
       <version>1.0.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/security/db_connection_factory.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>com.topcoder</groupId>
+      <groupId>com.topcoder.legacy</groupId>
       <artifactId>ldap</artifactId>
       <version>1.0.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/ldap/ldap.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>com.topcoder</groupId>
+      <groupId>com.topcoder.legacy</groupId>
       <artifactId>ldap_sdk_interface</artifactId>
       <version>1.0.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/ldap/ldap_sdk_interface.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>com.topcoder</groupId>
+      <groupId>com.topcoder.legacy</groupId>
       <artifactId>ldapjdk</artifactId>
       <version>1.0.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/ldap/ldapjdk.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>com.topcoder</groupId>
+      <groupId>com.topcoder.legacy</groupId>
       <artifactId>shared</artifactId>
       <version>1.0.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/ldap/shared.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>com.topcoder</groupId>
+      <groupId>com.topcoder.legacy</groupId>
       <artifactId>tcwebcommon</artifactId>
       <version>1.0.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/ldap/tcwebcommon.jar</systemPath>
+    </dependency>
+    
+    <!-- AWS -->
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-core</artifactId>
+      <version>${amazon.aws.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-dynamodb</artifactId>
+      <version>${amazon.aws.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.sendgrid</groupId>
+      <artifactId>sendgrid-java</artifactId>
+      <version>2.2.2</version>
+    </dependency>
+        
+    <!-- Apache Shiro -->
+	<dependency>
+	  <groupId>org.apache.shiro</groupId>
+	  <artifactId>shiro-core</artifactId>
+	  <version>1.1.0</version>
+	  <exclusions>
+         <exclusion>
+           <groupId>org.slf4j</groupId>
+           <artifactId>*</artifactId>
+         </exclusion>
+       </exclusions>
+	</dependency>
+	
+	<!-- Mysql  -->
+	<dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>5.1.35</version>
+	</dependency>
+
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>1.4.187</version>
     </dependency>
 
-  </dependencies>
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>2.3.0</version>
+      <scope>test</scope>
+    </dependency>
 
+    <dependency>
+      <groupId>com.appirio</groupId>
+      <artifactId>ap-events-bus</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+      <exclusions>
+        <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>*</artifactId>
+        </exclusion>
+        <exclusion>
+            <groupId>log4j</groupId>
+            <artifactId>*</artifactId>
+        </exclusion>
+        <exclusion>
+            <groupId>com.fasterxml.jackson</groupId>
+            <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson-version}</version>
+    </dependency>
+	
+  </dependencies>
 
   <repositories>
     <repository>
       <id>Appirio Technology Maven Repository</id>
-      <url>http://maven.appirio.net:8080/</url>
+      <url>http://maven.topcoder-dev.com:8080/</url>
       <snapshots>
         <updatePolicy>always</updatePolicy>
       </snapshots>

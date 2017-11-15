@@ -18,7 +18,8 @@ Use "dev" branch to parse and include for the latest code.
 See "Core Service: Development Environment Setup" document (https://docs.google.com/a/appirio.com/document/d/1e2aGnbXZgHvXZQ2GbGYksN8n0jiWxKRMbzaNc2QZBuA/edit#heading=h.ug5qzkdm27d6)   
 
 There is also Jenkins automatic build running for Sample project to test out quickly in dev environment. Goto  
-http://api.topcoder-dev.com/pub/index.html
+http://api.topcoder-dev.com/sample/index.html  
+http://api.topcoder-dev.com/sample/index2.html
 
 # API Shared Library Basics
 
@@ -122,6 +123,7 @@ Application has the flexibility to extend this class to provide its own initiali
 <table>
 <tr><th>Version</th><th>Changes</th></tr>
 
+<<<<<<< HEAD
 <tr><td>API-3.0.0.9-SNAPSHOT</td>
 <td>
 Supporting Validation on POST/OUT/PATCH request payload.
@@ -131,6 +133,8 @@ PR#177(https://github.com/appirio-tech/tc1-api-core/pull/177)
 </p>
 </td></tr>
 
+=======
+>>>>>>> d2639e622575ec1840185c6458a8ef1309075c56
 <tr><td>API-3.0.0.8-SNAPSHOT</td>
 <td>
 AuthUser contains roles which are extracted from JWT token.
@@ -142,14 +146,21 @@ AuthUser contains roles which are extracted from JWT token.
 
 <tr><td>API-3.0.0.7-SNAPSHOT</td>
 <td>
+<<<<<<< HEAD
+=======
+Bug fix on PATCH http method. </br>
+Supports partial field retrieval. </br>
+>>>>>>> d2639e622575ec1840185c6458a8ef1309075c56
 </td></tr>
 
 <tr><td>API-3.0.0.6-SNAPSHOT</td>
 <td>Additional user's attribute "handle" and "email" are added in JWT payload. </br>
 403 Forbidden is returned for logging-in attempt by non-active users. </br>
+Added support for multiple fields in orderBy. </br>
 <p>Related stories: </br>
 - https://appirio.atlassian.net/browse/COR-214</br>
 - https://appirio.atlassian.net/browse/COR-271</br>
+- https://appirio.atlassian.net/browse/COR-211</br>
 </p>
 </td></tr>
 

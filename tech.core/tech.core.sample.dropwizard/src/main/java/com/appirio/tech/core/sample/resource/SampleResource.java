@@ -27,7 +27,7 @@ import com.appirio.tech.core.api.v3.TCID;
 import com.appirio.tech.core.api.v3.metadata.CountableMetadata;
 import com.appirio.tech.core.api.v3.metadata.Metadata;
 import com.appirio.tech.core.api.v3.request.FieldSelector;
-import com.appirio.tech.core.api.v3.request.FilterParameter;
+import com.appirio.tech.core.api.v3.request.OrderByQuery;
 import com.appirio.tech.core.api.v3.request.PostPutRequest;
 import com.appirio.tech.core.api.v3.request.QueryParameter;
 import com.appirio.tech.core.api.v3.request.SortOrder;
@@ -63,6 +63,7 @@ public class SampleResource implements GetResource<Sample>, DDLResource<Sample> 
 			@APIFieldParam(repClass = Sample.class) FieldSelector selector,
 			@Context HttpServletRequest request)
 			throws Exception {
+
 		for(Sample user : storage.getUserList()) {
 			if(user.getId().equals(recordId)) {
 				return ApiResponseFactory.createFieldSelectorResponse(user, selector);
@@ -78,47 +79,16 @@ public class SampleResource implements GetResource<Sample>, DDLResource<Sample> 
 			@Auth AuthUser authUser,
 			@APIQueryParam(repClass = Sample.class) QueryParameter query,
 			@Context HttpServletRequest request) throws Exception {
-		FilterParameter parameter = query.getFilter();
-		List<Sample> resultList = storage.getFilteredUserList(parameter);
 		
-		//order_by
+		//obtain filtered list from storage
+		List<Sample> resultList = storage.getFilteredUserList(query.getFilter());
+		
+		//sort the list on order_by
 		if(query.getOrderByQuery().getOrderByField()!=null) {
-			String orderField = query.getOrderByQuery().getOrderByField();
-			final Boolean order = SortOrder.ASC_NULLS_FIRST==query.getOrderByQuery().getSortOrder()?true:false;
-			if(orderField.equals("handle")) {
-				Collections.sort(resultList, new Comparator<Sample>() {
-					public int compare(Sample o1, Sample o2) {
-						int result = o1.getHandle().compareTo(o2.getHandle());
-						return order?result:-1*result;
-					}
-				});
-			}else if(orderField.equals("email")) {
-				Collections.sort(resultList, new Comparator<Sample>() {
-					public int compare(Sample o1, Sample o2) {
-						int result = o1.getEmail().compareTo(o2.getEmail());
-						return order?result:-1*result;
-					}
-				});
-			}else if(orderField.equals("firstName")) {
-				Collections.sort(resultList, new Comparator<Sample>() {
-					public int compare(Sample o1, Sample o2) {
-						int result = o1.getFirstName().compareTo(o2.getFirstName());
-						return order?result:-1*result;
-					}
-				});
-			}else if(orderField.equals("lastName")) {
-				Collections.sort(resultList, new Comparator<Sample>() {
-					public int compare(Sample o1, Sample o2) {
-						int result = o1.getLastName().compareTo(o2.getLastName());
-						return order?result:-1*result;
-					}
-				});
-			}else {
-				throw new StorageException("Unknown field on order by :" + orderField);
-			}
+			sortList(query.getOrderByQuery(), resultList);
 		}
 		
-		//limit, off set
+		//handle limit and offset
 		if(query.getLimitQuery().getOffset() != null) {
 			resultList = resultList.subList(query.getLimitQuery().getOffset(), resultList.size());
 		}
@@ -126,8 +96,10 @@ public class SampleResource implements GetResource<Sample>, DDLResource<Sample> 
 			resultList = resultList.subList(0, query.getLimitQuery().getLimit());
 		}
 		
+		//return with additional attributes
 		return ApiResponseFactory.createFieldSelectorResponse(resultList, getMetadata(request, query), query.getSelector());
 	}
+
 
 	@Override
 	@POST
@@ -176,5 +148,47 @@ public class SampleResource implements GetResource<Sample>, DDLResource<Sample> 
 		metadata.setTotalCount(storage.getFilteredUserList(query.getFilter()).size());
 		//populateFieldInfo(metadata);
 		return metadata;
+	}
+
+	/**
+	 * Sorts the given resultList from query's orderby.
+	 * 
+	 * @param query
+	 * @param resultList
+	 */
+	private void sortList(OrderByQuery orderQuery, List<Sample> resultList) {
+		String orderField = orderQuery.getOrderByField();
+		final Boolean order = SortOrder.ASC_NULLS_FIRST==orderQuery.getSortOrder() ? true : false;
+		if(orderField.equals("handle")) {
+			Collections.sort(resultList, new Comparator<Sample>() {
+				public int compare(Sample o1, Sample o2) {
+					int result = o1.getHandle().compareTo(o2.getHandle());
+					return order?result:-1*result;
+				}
+			});
+		}else if(orderField.equals("email")) {
+			Collections.sort(resultList, new Comparator<Sample>() {
+				public int compare(Sample o1, Sample o2) {
+					int result = o1.getEmail().compareTo(o2.getEmail());
+					return order?result:-1*result;
+				}
+			});
+		}else if(orderField.equals("firstName")) {
+			Collections.sort(resultList, new Comparator<Sample>() {
+				public int compare(Sample o1, Sample o2) {
+					int result = o1.getFirstName().compareTo(o2.getFirstName());
+					return order?result:-1*result;
+				}
+			});
+		}else if(orderField.equals("lastName")) {
+			Collections.sort(resultList, new Comparator<Sample>() {
+				public int compare(Sample o1, Sample o2) {
+					int result = o1.getLastName().compareTo(o2.getLastName());
+					return order?result:-1*result;
+				}
+			});
+		}else {
+			throw new StorageException("Unknown field on order by :" + orderField);
+		}
 	}
 }

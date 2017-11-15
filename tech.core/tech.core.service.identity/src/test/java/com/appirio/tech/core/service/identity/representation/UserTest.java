@@ -1,37 +1,74 @@
 package com.appirio.tech.core.service.identity.representation;
 
 import static com.appirio.tech.core.service.identity.util.Constants.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 
 public class UserTest {
 
+	@Test
+	public void testGetProfile() {
+		
+		// testee
+		User user = new User();
+
+		// data1
+		UserProfile profile = new UserProfile();
+		List<UserProfile> profiles = new ArrayList<UserProfile>();
+		profiles.add(profile);
+
+		// test1
+		user.setProfiles(profiles);
+		UserProfile result = user.getProfile();
+		assertEquals(profile, result);
+		
+		// data2
+		@SuppressWarnings("serial")
+		List<UserProfile> profiles2 = new ArrayList<UserProfile>(){{ add(new UserProfile()); add(new UserProfile()); }};
+		
+		// test2
+		user.setProfiles(profiles2);
+		UserProfile result2 = user.getProfile();
+		assertEquals(profiles2.get(0), result2);
+		
+		// test3
+		user.getProfiles().clear(); // profiles == empty
+		assertNull(user.getProfile());
+		
+		// test4
+		user.setProfiles(null); // profiles == null
+		assertNull(user.getProfile());		
+	}
+	
+	
 	@Test
 	public void testValidate() {
 		User user = new User();
 		
 		// Create Mock with dummy validators.
-		User mock = Mockito.spy(user);
-		Mockito.when(mock.validateHandle()).thenReturn(null);
-		Mockito.when(mock.validateEmail()).thenReturn(null);
-		Mockito.when(mock.validateFirstName()).thenReturn(null);
-		Mockito.when(mock.validateLastName()).thenReturn(null);
-		Mockito.when(mock.validatePassoword()).thenReturn(null);
+		User mock = spy(user);
+		
+		doReturn(null).when(mock).validateHandle();
+		doReturn(null).when(mock).validateEmail();
+		doReturn(null).when(mock).validateFirstName();
+		doReturn(null).when(mock).validateLastName();
+		doReturn(null).when(mock).validatePassoword();
 		
 		// test
 		assertNull(mock.validate());
 		
 		// verifying that all validators are invoked.
-		Mockito.verify(mock).validate();
-		Mockito.verify(mock).validateHandle();
-		Mockito.verify(mock).validateEmail();
-		Mockito.verify(mock).validateFirstName();
-		Mockito.verify(mock).validateLastName();
-		Mockito.verify(mock).validatePassoword();
+		verify(mock).validate();
+		verify(mock).validateHandle();
+		verify(mock).validateEmail();
+		verify(mock).validateFirstName();
+		verify(mock).validateLastName();
+		verify(mock).validatePassoword();
 	}
 	
 	@Test
@@ -93,11 +130,11 @@ public class UserTest {
 		
 		testee.setHandle(genText(MAX_LENGTH_HANDLE+1));
 		assertEquals(
-				String.format(MSG_TEMPLATE_INVALID_MINMAX_LENGTH, "handle", MIN_LENGTH_HANDLE, MAX_LENGTH_HANDLE),
+				MSG_TEMPLATE_INVALID_HANDLE_LENGTH,
 				testee.validateHandle());
 		testee.setHandle(genText(MIN_LENGTH_HANDLE-1));
 		assertEquals(
-				String.format(MSG_TEMPLATE_INVALID_MINMAX_LENGTH, "handle", MIN_LENGTH_HANDLE, MAX_LENGTH_HANDLE),
+				MSG_TEMPLATE_INVALID_HANDLE_LENGTH,
 				testee.validateHandle());
 
 		// Contains blank
@@ -117,7 +154,7 @@ public class UserTest {
 			assertTrue(handle.length() <= MAX_LENGTH_HANDLE);
 			testee.setHandle(handle);
 			assertEquals(
-					MSG_TEMPLATE_INVALID_HANDLE_CONTAINS_FORBIDDEN_CHARS,
+					MSG_TEMPLATE_INVALID_HANDLE_CONTAINS_FORBIDDEN_CHAR,
 					testee.validateHandle());
 		}
 		
@@ -170,13 +207,80 @@ public class UserTest {
 
 		testee.setEmail(genText(MAX_LENGTH_EMAIL+1));
 		assertEquals(
-				String.format(MSG_TEMPLATE_INVALID_MAX_LENGTH, "email address", MAX_LENGTH_EMAIL),
+				MSG_TEMPLATE_INVALID_EMAIL_LENGTH,
 				testee.validateEmail());
 	}
 	
 	@Test
 	public void testValidatePassoword() {
 		User testee = new User();
+		
+		// Mandatory
+		assertEquals(
+				String.format(MSG_TEMPLATE_MANDATORY, "Password"),
+				testee.validatePassoword());
+		Credential cred = new Credential();
+		testee.setCredential(cred);
+		assertEquals(
+				String.format(MSG_TEMPLATE_MANDATORY, "Password"),
+				testee.validatePassoword());
+		cred.setPassword("");
+		assertEquals(
+				String.format(MSG_TEMPLATE_MANDATORY, "Password"),
+				testee.validatePassoword());
+
+		// Min length
+		String letter = "a";
+		String num = "1";
+		String letAndNum = letter+num;
+		String passwd = genText(MIN_LENGTH_PASSWORD-letAndNum.length()) + letAndNum;
+		testee.getCredential().setPassword(passwd);
+		assertNull(testee.validatePassoword());
+		
+		passwd = genText(MIN_LENGTH_PASSWORD-1-letAndNum.length()) + letAndNum;
+		testee.getCredential().setPassword(passwd);
+		String msg = String.format(MSG_TEMPLATE_INVALID_MINMAX_LENGTH, "password", MIN_LENGTH_PASSWORD, MAX_LENGTH_PASSWORD); 
+		assertEquals(msg, testee.validatePassoword());
+		
+		// Max length
+		passwd = genText(MAX_LENGTH_PASSWORD-letAndNum.length()) + letAndNum;
+		testee.getCredential().setPassword(passwd);
+		assertNull(testee.validatePassoword());
+		
+		passwd = genText(MAX_LENGTH_PASSWORD+1-letAndNum.length()) + letAndNum;
+		testee.getCredential().setPassword(passwd);
+		assertEquals(msg, testee.validatePassoword());
+		
+		// Contains a letter
+		passwd = genText(MIN_LENGTH_PASSWORD, '1');
+		testee.getCredential().setPassword(passwd);
+		assertEquals(MSG_TEMPLATE_INVALID_PASSWORD_LETTER, testee.validatePassoword());
+
+		testee.getCredential().setPassword(passwd+letter);
+		assertNull(testee.validatePassoword());
+		
+
+		// Contains a number or symbol
+		passwd = genText(MIN_LENGTH_PASSWORD);
+		testee.getCredential().setPassword(passwd);
+		assertEquals(MSG_TEMPLATE_INVALID_PASSWORD_NUMBER_SYMBOL, testee.validatePassoword());
+		
+		testee.getCredential().setPassword(passwd+num);
+		assertNull(testee.validatePassoword());
+
+		testee.getCredential().setPassword(passwd+"?");
+		assertNull(testee.validatePassoword());
+
+		// password can contain space
+		passwd = genText(MIN_LENGTH_PASSWORD) + " " + letAndNum;
+		testee.getCredential().setPassword(passwd);
+		assertNull(testee.validatePassoword());
+	}
+	
+	@Test
+	public void testValidatePassoword_V2() {
+		User testee = new User();
+		testee.passwordValidator = new User.PasswordValidatorV2();
 
 		// Mandatory
 		assertEquals(
@@ -193,41 +297,41 @@ public class UserTest {
 				testee.validatePassoword());
 
 		// Min length
-		String sym = "1", num = "?";
+		String sym = "?", num = "1";
 		String symNum = sym + num;
-		String passwd = genText(MIN_LENGTH_PASSWORD-symNum.length()) + symNum;
-		assertEquals(MIN_LENGTH_PASSWORD, passwd.length());
+		String passwd = genText(MIN_LENGTH_PASSWORD_V2-symNum.length()) + symNum;
+		assertEquals(MIN_LENGTH_PASSWORD_V2, passwd.length());
 		testee.getCredential().setPassword(passwd);
 		assertNull(testee.validatePassoword());
 		
 		testee.getCredential().setPassword(
-				genText(MIN_LENGTH_PASSWORD-1-symNum.length()) + symNum);
+				genText(MIN_LENGTH_PASSWORD_V2-1-symNum.length()) + symNum);
 		assertEquals(
-				String.format(MSG_TEMPLATE_INVALID_MINMAX_LENGTH, "passowrd", MIN_LENGTH_PASSWORD, MAX_LENGTH_PASSWORD),
+				String.format(MSG_TEMPLATE_INVALID_MINMAX_LENGTH, "password", MIN_LENGTH_PASSWORD_V2, MAX_LENGTH_PASSWORD_V2),
 				testee.validatePassoword());
 
 		// Max length
-		passwd = genText(MAX_LENGTH_PASSWORD-symNum.length()) + symNum;
-		assertEquals(MAX_LENGTH_PASSWORD, passwd.length());
+		passwd = genText(MAX_LENGTH_PASSWORD_V2-symNum.length()) + symNum;
+		assertEquals(MAX_LENGTH_PASSWORD_V2, passwd.length());
 		testee.getCredential().setPassword(passwd);
 		assertNull(testee.validatePassoword());
 
 		testee.getCredential().setPassword(
-				genText(MAX_LENGTH_PASSWORD+1-symNum.length()) + symNum);
+				genText(MAX_LENGTH_PASSWORD_V2+1-symNum.length()) + symNum);
 		assertEquals(
-				String.format(MSG_TEMPLATE_INVALID_MINMAX_LENGTH, "passowrd", MIN_LENGTH_PASSWORD, MAX_LENGTH_PASSWORD),
+				String.format(MSG_TEMPLATE_INVALID_MINMAX_LENGTH, "password", MIN_LENGTH_PASSWORD_V2, MAX_LENGTH_PASSWORD_V2),
 				testee.validatePassoword());
 
 		// Weakness
 		String cap = "A";
 		String[] WEAK_PASSWD_PATTERNS = new String[] {
-				genText(MIN_LENGTH_PASSWORD),
-				genText(MIN_LENGTH_PASSWORD).toLowerCase() + sym,
-				genText(MIN_LENGTH_PASSWORD).toLowerCase() + num,
-				genText(MIN_LENGTH_PASSWORD).toLowerCase() + cap,
-				genText(MIN_LENGTH_PASSWORD).toUpperCase() + sym,
-				genText(MIN_LENGTH_PASSWORD).toUpperCase() + num,
-				genText(MIN_LENGTH_PASSWORD).toUpperCase() + cap.toLowerCase(),
+				genText(MIN_LENGTH_PASSWORD_V2),
+				genText(MIN_LENGTH_PASSWORD_V2).toLowerCase() + sym,
+				genText(MIN_LENGTH_PASSWORD_V2).toLowerCase() + num,
+				genText(MIN_LENGTH_PASSWORD_V2).toLowerCase() + cap,
+				genText(MIN_LENGTH_PASSWORD_V2).toUpperCase() + sym,
+				genText(MIN_LENGTH_PASSWORD_V2).toUpperCase() + num,
+				genText(MIN_LENGTH_PASSWORD_V2).toUpperCase() + cap.toLowerCase(),
 				
 		};
 		for(int i=0; i<WEAK_PASSWD_PATTERNS.length; i++) {
@@ -236,23 +340,21 @@ public class UserTest {
 		}
 		
 		String[] STRONG_PASSWD_PATTERNS = new String[] {
-				genText(MIN_LENGTH_PASSWORD).toLowerCase() + sym + num,
-				genText(MIN_LENGTH_PASSWORD).toLowerCase() + sym + cap,
-				genText(MIN_LENGTH_PASSWORD).toLowerCase() + num + cap,
-				genText(MIN_LENGTH_PASSWORD).toUpperCase() + sym + num,
-				genText(MIN_LENGTH_PASSWORD).toUpperCase() + sym + cap.toLowerCase(),
-				genText(MIN_LENGTH_PASSWORD).toUpperCase() + num + cap.toLowerCase(),
+				genText(MIN_LENGTH_PASSWORD_V2).toLowerCase() + sym + num,
+				genText(MIN_LENGTH_PASSWORD_V2).toLowerCase() + sym + cap,
+				genText(MIN_LENGTH_PASSWORD_V2).toLowerCase() + num + cap,
+				genText(MIN_LENGTH_PASSWORD_V2).toUpperCase() + sym + num,
+				genText(MIN_LENGTH_PASSWORD_V2).toUpperCase() + sym + cap.toLowerCase(),
+				genText(MIN_LENGTH_PASSWORD_V2).toUpperCase() + num + cap.toLowerCase(),
 		};
 		for(int i=0; i<STRONG_PASSWD_PATTERNS.length; i++) {
 			testee.getCredential().setPassword(STRONG_PASSWD_PATTERNS[i]);
 			assertNull(testee.validatePassoword());
 		}
-		
-
 	}
 	
 	@Test
-	public void testChangeStatus() {
+	public void testChangeUserActivationStatus() {
 		User testee = new User();
 		
 		// Initial status
@@ -265,9 +367,9 @@ public class UserTest {
 		assertEquals(User.INTERNAL_STATUS_ACTIVE, testee.getStatus());
 		
 		// In-activated by changing status
-		testee.setStatus(User.INTERNAL_STATUS_INACTIVE);
+		testee.setStatus(User.INTERNAL_STATUS_UNVERIFIED);
 		assertEquals(false, testee.isActive());
-		assertEquals(User.INTERNAL_STATUS_INACTIVE, testee.getStatus());
+		assertEquals(User.INTERNAL_STATUS_UNVERIFIED, testee.getStatus());
 		
 		// Activated by changing status
 		testee.setStatus(User.INTERNAL_STATUS_ACTIVE);
@@ -277,19 +379,53 @@ public class UserTest {
 		// In-activated
 		testee.setActive(false);
 		assertEquals(false, testee.isActive());
-		assertEquals(User.INTERNAL_STATUS_INACTIVE, testee.getStatus());
+		assertEquals(User.INTERNAL_STATUS_UNVERIFIED, testee.getStatus());
 
 		testee.setStatus(null);
 		assertEquals(false, testee.isActive());
 		assertNull(testee.getStatus());
 	}
+	
+	@Test
+	public void testChangeEmailActivationStatus() {
+		
+		User testee = new User();
+		
+		assertNull("emailStatus should be null.", testee.getEmailStatus());
+		assertFalse("isEmailActive should be false.", testee.isEmailActive());
+		
+		testee.setEmailStatus(User.INTERNAL_EMAIL_STATUS_ACTIVE);
+		assertEquals(User.INTERNAL_EMAIL_STATUS_ACTIVE, (int)testee.getEmailStatus());
+		assertTrue("isEmailActive should be true.", testee.isEmailActive());
+		
+		testee.setEmailStatus(0);
+		assertEquals(0, (int)testee.getEmailStatus());
+		assertFalse("isEmailActive should be false.", testee.isEmailActive());
+	}
+
+	@Test
+	public void testIsReferralProgramCampaign() {
+		User testee = new User();
+
+		assertNull(testee.getUtmCampaign());
+		assertFalse(testee.isReferralProgramCampaign());
+
+		testee.setUtmCampaign("ReferralProgram");
+		assertTrue(testee.isReferralProgramCampaign());
+
+		testee.setUtmCampaign("AnotherCampaign");
+		assertFalse(testee.isReferralProgramCampaign());
+	}
 
 	public static String genText(int len) {
+		return genText(len, 'a');
+	}
+	public static String genText(int len, char c) {
 		if(len<=0)
 			return "";
 		StringBuilder sb = new StringBuilder();
 		for(int i=0;i<len;i++)
-			sb.append("a");
+			sb.append(c);
 		return sb.toString();
 	}
 

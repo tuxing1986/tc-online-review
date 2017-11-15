@@ -10,3 +10,13 @@
 *.settings/
 
 target/
+
+ap-core-service-tests.log
+
+.idea
+
+*.keystore
+
+token.properties
+
+*.iml

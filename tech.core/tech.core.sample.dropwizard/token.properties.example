@@ -1,0 +1,3 @@
+# Auth0 settings (Please visit "https://manage.auth0.com/" and gain the client secret)
+@auth0.clientId@=JFDo7HMkf0q2CkVFHojy3zHWafziprhT
+@auth0.clientSecret@=

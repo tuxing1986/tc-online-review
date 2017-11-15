@@ -3,13 +3,25 @@
  */
 package com.appirio.tech.core.api.v3.request.inject;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.ws.rs.core.MultivaluedMap;
 
-import com.appirio.tech.core.api.v3.exception.APIParseException;
+import org.glassfish.hk2.api.Factory;
+import org.glassfish.hk2.api.InjectionResolver;
+import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.hk2.api.TypeLiteral;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.server.internal.inject.AbstractContainerRequestValueFactory;
+import org.glassfish.jersey.server.internal.inject.AbstractValueFactoryProvider;
+import org.glassfish.jersey.server.internal.inject.MultivaluedParameterExtractorProvider;
+import org.glassfish.jersey.server.internal.inject.ParamInjectionResolver;
+import org.glassfish.jersey.server.model.Parameter;
+import org.glassfish.jersey.server.spi.internal.ValueFactoryProvider;
+
 import com.appirio.tech.core.api.v3.model.ResourceHelper;
 import com.appirio.tech.core.api.v3.request.FieldSelector;
 import com.appirio.tech.core.api.v3.request.FilterParameter;
@@ -17,30 +29,29 @@ import com.appirio.tech.core.api.v3.request.LimitQuery;
 import com.appirio.tech.core.api.v3.request.OrderByQuery;
 import com.appirio.tech.core.api.v3.request.QueryParameter;
 import com.appirio.tech.core.api.v3.request.annotation.APIQueryParam;
-import com.sun.jersey.api.core.HttpContext;
-import com.sun.jersey.api.model.Parameter;
-import com.sun.jersey.core.spi.component.ComponentContext;
-import com.sun.jersey.core.spi.component.ComponentScope;
-import com.sun.jersey.server.impl.inject.AbstractHttpContextInjectable;
-import com.sun.jersey.spi.inject.Injectable;
-import com.sun.jersey.spi.inject.InjectableProvider;
 
-/**
- * @author sudo
- * 
- */
-public class QueryParameterProvider implements InjectableProvider<APIQueryParam, Parameter> {
-
-	public static class QueryParameterInjectable extends AbstractHttpContextInjectable<QueryParameter> {
+public class QueryParameterProvider extends AbstractValueFactoryProvider {
+	
+	/**
+  	 * {@link APIQueryParam} injection resolver.
+	 */
+	@Singleton
+	public static final class QueryParameterInjectionResolver extends ParamInjectionResolver<APIQueryParam> {
+		public QueryParameterInjectionResolver() {
+			super(QueryParameterProvider.class);
+		}
+	}
+	
+	public static final class QueryParameterFactory extends AbstractContainerRequestValueFactory<QueryParameter> {
 		
 		private Class<?> repClass;
 		
-		public QueryParameterInjectable(Class<?> repClass) {
+		QueryParameterFactory(Class<?> repClass) {
 			this.repClass = repClass;
 		}
-
+		
 		@Override
-		public QueryParameter getValue(HttpContext c) {
+		public QueryParameter provide() {
 			String fields = null;
 			String filter = null;
 			String limit = null;
@@ -49,7 +60,7 @@ public class QueryParameterProvider implements InjectableProvider<APIQueryParam,
 			String orderBy = null;
 			//String include = null; TODO: implement V3 "include" parameter
 			
-			MultivaluedMap<String, String> params = c.getUriInfo().getQueryParameters();
+			MultivaluedMap<String, String> params = getContainerRequest().getUriInfo().getQueryParameters();
 			// Populate URI for query param and value is present
 			for (Entry<String, List<String>> param : params.entrySet()) {
 				String key = param.getKey();
@@ -80,25 +91,37 @@ public class QueryParameterProvider implements InjectableProvider<APIQueryParam,
 				selector = ResourceHelper.getDefaultFieldSelector(repClass);
 			}
 			
-			try {
-				return new QueryParameter(selector,
-						FilterParameter.fromEncodedString(filter),
-						LimitQuery.instanceFromRaw(limit, offset, offsetId),
-						OrderByQuery.instanceFromRaw(orderBy));
-			} catch (UnsupportedEncodingException e) {
-				throw new APIParseException("Failed to parse Query Parameter", e);
-			}
+			return new QueryParameter(selector,
+					new FilterParameter(filter),
+					LimitQuery.instanceFromRaw(limit, offset, offsetId),
+					OrderByQuery.instanceFromRaw(orderBy));
 		}
 	}
-
-	@Override
-	public ComponentScope getScope() {
-		return ComponentScope.PerRequest;
+	
+	@Inject
+	protected QueryParameterProvider(
+			MultivaluedParameterExtractorProvider mpep, ServiceLocator locator) {
+		super(mpep, locator, Parameter.Source.UNKNOWN);
 	}
 
 	@Override
-	public Injectable<?> getInjectable(ComponentContext ic, APIQueryParam a, Parameter c) {
-		return new QueryParameterInjectable(a.repClass());
+	protected Factory<?> createValueFactory(Parameter parameter) {
+		APIQueryParam annotation = parameter.getAnnotation(APIQueryParam.class);
+		Class<?> paramType = parameter.getRawType();
+		if(annotation!=null && paramType.isAssignableFrom(QueryParameter.class)) {
+			return new QueryParameterFactory(annotation.repClass());
+		}
+		return null;
 	}
+	
+    public static class Binder extends AbstractBinder {
 
+        @Override
+        protected void configure() {
+			bind(QueryParameterProvider.class)
+			.to(ValueFactoryProvider.class).in(Singleton.class);
+			bind(QueryParameterInjectionResolver.class)
+			.to(new TypeLiteral<InjectionResolver<APIQueryParam>>(){}).in(Singleton.class);
+        }
+    }
 }

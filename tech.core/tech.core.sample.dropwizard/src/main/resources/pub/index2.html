@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Top Coder</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+<link rel="stylesheet" href="http://getbootstrap.com/examples/dashboard/dashboard.css">
+<link rel="stylesheet" href="http://getbootstrap.com/examples/jumbotron/jumbotron.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.min.css">
+
+<style type="text/css">
+<!--
+ul li {
+	list-style: none;
+	margin-bottom: 5px;
+}
+
+#navbar .navbar-item {
+	margin-right: 10px;
+	width: 140px;
+	font-size: 11px;
+}
+
+#navbar select {
+	margin-top: 10px;
+	margin-right: 10px;
+	width: 180px;
+}
+
+#login-info {
+  display: inline-block;
+  padding: 6px 12px;
+  margin-bottom: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.42857143;
+  text-align: left;
+  white-space: nowrap;
+  vertical-align: middle;
+  background-color: #ddd;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+#main {
+	height: 350px;
+	background-image: url(./img/home_banner.jpg);
+}
+
+#reg-dialog .form-items li {
+	width: 14em;
+}
+
+#profile {
+	word-wrap:break-word;
+}
+
+.social-reg-items {
+	display: table;
+}
+
+.social-reg-item {
+	color: #fff;
+	display: table-cell;
+	text-align: center;
+	vertical-align: middle;
+	border: 2px #fff solid;
+	border-radius: 5px;
+	height: 35px;
+	width: 35px;
+	margin: 1px;
+	cursor: pointer;
+}
+
+#reg-facebook {
+	background-color: #3b5998;
+}
+#reg-google {
+	background-color: #df4a32;
+}
+#reg-twitter {
+	background-color: #00b0ed;
+}
+#reg-github {
+	background-color: #ccc;
+}
+
+-->
+</style>
+
+</head>
+<body>
+
+	<!-- top-navigation -->
+	<nav class="navbar navbar-inverse navbar-fixed-top"
+		style="background-color: #ccc; background-image: none;">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#"
+					style="padding-top: 0; padding-bottom: 0;"> <img src="img/logo.png">
+				</a>
+			</div>
+			<div id="navbar" class="navbar-collapse collapse">
+				<ul class="nav navbar-nav navbar-right">
+					<li><div id="login-info" class="navbar-btn navbar-item" style="display: none">
+							<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+							<span id="login-handle"></span>
+						</div>
+					</li>
+					<li><button id="btn-reissue" type="button" class="btn btn-info navbar-btn navbar-item" style="display: none">Re-issue Token</button></li>
+					<li><button id="btn-reg" type="button" class="btn btn-danger navbar-btn navbar-item" data-toggle="modal" data-target="#reg-dialog" style="display: none">Sign up</button></li>
+					
+					<li>
+						<div class="btn-group" id="btn-group-login">
+							<button type="button" class="btn btn-primary dropdown-toggle navbar-item" data-toggle="dropdown" aria-expanded="false" style="margin-top: 8px;">
+								Login <span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu" role="menu">
+								<li><a id="btn-login" href="#">Handle</a></li>
+							    <li><a id="btn-login-email" href="#">Email</a></li>
+							    <li><a id="btn-login-client" data-toggle="modal" data-target="#login-dialog" href="#">Client-ID</a></li>
+							    <li><a id="btn-login-samlp" href="#" style="display: none">SSO</a></li>
+							</ul>
+						</div>
+					</li>
+					<li><button id="btn-forgot-passwd" type="button" class="btn btn-warning navbar-btn navbar-item" data-toggle="modal" data-target="#forgot-passwd-dialog" style="display: none">Forgot Password</button></li>
+					<li><button id="btn-logout" type="button" class="btn btn-warning navbar-btn navbar-item" style="display: none">Log out</button></li>
+					<li><button id="btn-donfig" type="button" class="btn btn-default navbar-btn navbar-item" data-toggle="modal" data-target="#config-dialog" style="width:50px">
+							<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+						</button>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<!-- /top-navigation -->
+
+	<div id="main" class="jumbotron">
+		<div class="container">
+			<h3>Improve your skills. Get paid.</h3>
+			<p>
+				<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#api-dialog">Try v3 API &raquo;</button>
+			</p>
+		</div>
+	</div>
+
+	<div class="container">
+		<footer>
+			<p>&copy; 2015 topcoder. All Rights Reserved.</p>
+		</footer>
+	</div>
+	
+	<div class="container">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">API Console</h3>
+			</div>
+			<div id="profile" class="panel-body"></div>
+			<div id="console" class="panel-body"></div>
+		</div>
+	</div>
+
+	<!-- registration dialog -->
+	<div class="modal fade" id="reg-dialog" tabindex="-1" role="dialog"
+		aria-labelledby="reg-dialog-label" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="reg-dialog-label">Sign Up</h4>
+				</div>
+				<div class="modal-body">
+					<div id="reg-alert" class="alert alert-danger alert-dismissible fade in" role="alert" style="display: none;">
+				      <span id="reg-alert-message"/>
+				    </div>
+				    
+
+					<h5>Sign Up Using An Existing Account</h5>
+					<ul class="social-reg-items">
+						<li id="reg-facebook" class="social-reg-item">F</li>
+						<li id="reg-google"   class="social-reg-item">g+</li>
+						<li id="reg-twitter"  class="social-reg-item">T</li>
+						<li id="reg-github"   class="social-reg-item">G</li>
+					</ul>
+					<h5>Or Sign Up Using Your Email</h5>
+					<ul class="form-items">
+						<li /> <input type="text" id="handle" class="form-control" placeholder="Handle" maxlength="15" />
+						<li /> <input type="text" id="email" class="form-control" placeholder="Email" maxlength="100" />
+						<li /> <input type="text" id="fname" class="form-control" placeholder="First Name (optional)" />
+						<li /> <input type="text" id="sname" class="form-control" placeholder="Last Name (optional)" />
+						<li>
+							<select id="country" class="form-control">
+								<option>Select Country</option>
+								<option>Afghanistan</option>
+								<option>Albania</option>
+								<option>Algeria</option>
+								<option>American Samoa</option>
+								<option>Andorra</option>
+								<option>Angola</option>
+								<option>Anguilla</option>
+								<option>Antarctica</option>
+								<option>Antigua and Barbuda</option>
+								<option>Argentina</option>
+								<option>Armenia</option>
+								<option>Aruba</option>
+								<option>Australia</option>
+								<option>Austria</option>
+								<option>Azerbaijan</option>
+								<option>Bahamas</option>
+								<option>Bahrain</option>
+								<option>Bangladesh</option>
+								<option>Barbados</option>
+								<option>Belarus</option>
+								<option>Belgium</option>
+								<option>Belize</option>
+								<option>Benin</option>
+								<option>Bermuda</option>
+								<option>Bhutan</option>
+								<option>Bolivia</option>
+								<option>Bosnia & Herzegowina</option>
+								<option>Botswana</option>
+								<option>Bouvet Island</option>
+								<option>Brazil</option>
+								<option>British Indian Ocean Territory</option>
+								<option>Brunei Darussalam</option>
+								<option>Bulgaria</option>
+								<option>Burkina Faso</option>
+								<option>Burundi</option>
+								<option>Cambodia</option>
+								<option>Cameroon</option>
+								<option>Canada</option>
+								<option>Cape Verde</option>
+								<option>Cayman Islands</option>
+								<option>Central African Republic</option>
+								<option>Chad</option>
+								<option>Chile</option>
+								<option>China</option>
+								<option>Christmas Island</option>
+								<option>Cocos (Keeling) Islands</option>
+								<option>Colombia</option>
+								<option>Comoros</option>
+								<option>Congo</option>
+								<option>Cook Islands</option>
+								<option>Costa Rica</option>
+								<option>Cote D'Ivoire</option>
+								<option>Croatia</option>
+								<option>Cuba</option>
+								<option>Cyprus</option>
+								<option>Czech Republic</option>
+								<option>Denmark</option>
+								<option>Djibouti</option>
+								<option>Dominica</option>
+								<option>Dominican Republic</option>
+								<option>East Timor</option>
+								<option>Ecuador</option>
+								<option>Egypt</option>
+								<option>El Salvador</option>
+								<option>Equatorial Guinea</option>
+								<option>Eritrea</option>
+								<option>Estonia</option>
+								<option>Ethiopia</option>
+								<option>Falkland Islands (Malvinas)</option>
+								<option>Faroe Islands</option>
+								<option>Fiji</option>
+								<option>Finland</option>
+								<option>France</option>
+								<option>French Guiana</option>
+								<option>French Polynesia</option>
+								<option>French Southern Territories</option>
+								<option>Gabon</option>
+								<option>Gambia</option>
+								<option>Georgia</option>
+								<option>Germany</option>
+								<option>Ghana</option>
+								<option>Gibraltar</option>
+								<option>Greece</option>
+								<option>Greenland</option>
+								<option>Grenada</option>
+								<option>Guadeloupe</option>
+								<option>Guam</option>
+								<option>Guatemala</option>
+								<option>Guinea</option>
+								<option>Guinea-Bissau</option>
+								<option>Guyana</option>
+								<option>Haiti</option>
+								<option>Heard and Mc Donald Islands</option>
+								<option>Honduras</option>
+								<option>Hong Kong</option>
+								<option>Hungary</option>
+								<option>Iceland</option>
+								<option>India</option>
+								<option>Indonesia</option>
+								<option>Iran</option>
+								<option>Iraq</option>
+								<option>Ireland</option>
+								<option>Israel</option>
+								<option>Italy</option>
+								<option>Jamaica</option>
+								<option>Japan</option>
+								<option>Jordan</option>
+								<option>Kazakhstan</option>
+								<option>Kenya</option>
+								<option>Kiribati</option>
+								<option>Kuwait</option>
+								<option>Kyrgyzstan</option>
+								<option>Lao People's Democratic Republic</option>
+								<option>Latvia</option>
+								<option>Lebanon</option>
+								<option>Lesotho</option>
+								<option>Liberia</option>
+								<option>Libya</option>
+								<option>Liechtenstein</option>
+								<option>Lithuania</option>
+								<option>Luxembourg</option>
+								<option>Macau</option>
+								<option>Macedonia</option>
+								<option>Madagascar</option>
+								<option>Malawi</option>
+								<option>Malaysia</option>
+								<option>Maldives</option>
+								<option>Mali</option>
+								<option>Malta</option>
+								<option>Marshall Islands</option>
+								<option>Martinique</option>
+								<option>Mauritania</option>
+								<option>Mauritius</option>
+								<option>Mayotte</option>
+								<option>Mexico</option>
+								<option>Micronesia, Federated States of</option>
+								<option>Moldova, Republic of</option>
+								<option>Monaco</option>
+								<option>Mongolia</option>
+								<option>Montenegro</option>
+								<option>Montserrat</option>
+								<option>Morocco</option>
+								<option>Mozambique</option>
+								<option>Myanmar</option>
+								<option>Namibia</option>
+								<option>Nauru</option>
+								<option>Nepal</option>
+								<option>Netherlands</option>
+								<option>Netherlands Antilles</option>
+								<option>New Caledonia</option>
+								<option>New Zealand</option>
+								<option>Nicaragua</option>
+								<option>Niger</option>
+								<option>Nigeria</option>
+								<option>Niue</option>
+								<option>Norfolk Island</option>
+								<option>North Korea</option>
+								<option>Northern Mariana Islands</option>
+								<option>Norway</option>
+								<option>Oman</option>
+								<option>Pakistan</option>
+								<option>Palau</option>
+								<option>Palestine</option>
+								<option>Panama</option>
+								<option>Papua New Guinea</option>
+								<option>Paraguay</option>
+								<option>Peru</option>
+								<option>Philippines</option>
+								<option>Pitcairn</option>
+								<option>Poland</option>
+								<option>Portugal</option>
+								<option>Puerto Rico</option>
+								<option>Qatar</option>
+								<option>Reunion</option>
+								<option>Romania</option>
+								<option>Russia</option>
+								<option>Rwanda</option>
+								<option>Saint Kitts and Nevis</option>
+								<option>Saint Lucia</option>
+								<option>Saint Vincent and The Grenadines</option>
+								<option>Samoa</option>
+								<option>San Marino</option>
+								<option>Sao Tome and Principe</option>
+								<option>Saudi Arabia</option>
+								<option>Senegal</option>
+								<option>Serbia</option>
+								<option>Seychelles</option>
+								<option>Sierra Leone</option>
+								<option>Singapore</option>
+								<option>Slovakia</option>
+								<option>Slovenia</option>
+								<option>Solomon Islands</option>
+								<option>Somalia</option>
+								<option>South Africa</option>
+								<option>South Georgia and The S.Sandwich Is.</option>
+								<option>South Korea</option>
+								<option>Spain</option>
+								<option>Sri Lanka</option>
+								<option>St. Helena</option>
+								<option>St. Kitts and Nevis</option>
+								<option>St. Lucia</option>
+								<option>St. Pierre and Miquelon</option>
+								<option>St. Vincent and Grenadines</option>
+								<option>Sudan</option>
+								<option>Suriname</option>
+								<option>Svalbard and Jan Mayen Islands</option>
+								<option>Swaziland</option>
+								<option>Sweden</option>
+								<option>Switzerland</option>
+								<option>Syria</option>
+								<option>Taiwan</option>
+								<option>Tajikistan</option>
+								<option>Tanzania, United Republic of</option>
+								<option>Thailand</option>
+								<option>Togo</option>
+								<option>Tokelau</option>
+								<option>Tonga</option>
+								<option>Trinidad and Tobago</option>
+								<option>Tunisia</option>
+								<option>Turkey</option>
+								<option>Turkmenistan</option>
+								<option>Turks and Caicos Islands</option>
+								<option>Tuvalu</option>
+								<option>Uganda</option>
+								<option>Ukraine</option>
+								<option>United Arab Emirates</option>
+								<option>United Kingdom</option>
+								<option>United States</option>
+								<option>United States Minor Outlying Islands</option>
+								<option>Uruguay</option>
+								<option>Uzbekistan</option>
+								<option>Vanuatu</option>
+								<option>Vatican City State (Holy See)</option>
+								<option>Venezuela</option>
+								<option>Viet Nam</option>
+								<option>Virgin Islands (British)</option>
+								<option>Virgin Islands (U.S.)</option>
+								<option>Wallis and Futuna Islands</option>
+								<option>Western Sahara</option>
+								<option>Yemen</option>
+								<option>Zaire</option>
+								<option>Zambia</option>
+								<option>Zimbabwe</option>
+							</select>
+						</li>
+						<li /> <input type="password" id="password" class="form-control" placeholder="Password" maxlength="30" />
+						<li /> <input type="password" id="password-confirm" class="form-control" placeholder="Confirm password" maxlength="30" />
+					</ul>
+					<ul id="social-profile" class="form-items" style="display:none">
+						<!-- social -->
+						<h6>Social User Profile</h6>
+						<li /> <input type="text" id="social-id" class="form-control" placeholder="Social User ID" disabled="disabled"/>
+						<li /> <input type="text" id="social-name" class="form-control" placeholder="Social User Name" disabled="disabled"/>
+						<li /> <input type="text" id="social-provider" class="form-control" placeholder="Social Provider" disabled="disabled"/>
+						<li /> <input type="text" id="social-email" class="form-control" placeholder="Social Email" disabled="disabled"/>
+						<li /> <input type="text" id="social-email-verified" class="form-control" placeholder="Social Email Verified" disabled="disabled"/>
+					</ul>
+					<ul id="sso-profile" class="form-items" style="display:none">
+						<!-- social -->
+						<h6>Single Sign On Settings</h6>
+						<li /> <input type="text" id="sso-provider" class="form-control" placeholder="ID Provider" disabled="disabled"/>
+						<li /> <input type="text" id="sso-id" class="form-control" placeholder="User ID"/>
+						<li /> <input type="text" id="sso-email" class="form-control" placeholder="Email"/>
+						<li /> <input type="text" id="sso-name" class="form-control" placeholder="User Name (optional)"/>
+					</ul>
+				</div>
+				<div class="modal-footer">
+					<button type="button" id="button-reg" class="btn btn-primary" data-loading-text="Processing..." autocomplete="off">Sign Up</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /registration dialog -->
+	
+	<!-- activation dialog -->
+	<div class="modal fade" id="activate-dialog" tabindex="-1" role="dialog"
+		aria-labelledby="activate-dialog-label" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="activate-dialog-label">Activation</h4>
+				</div>
+				<div class="modal-body">
+					<div id="activate-alert" class="alert alert-danger alert-dismissible fade in" role="alert" style="display: none;">
+				      <span id="activate-alert-message"/>
+				    </div>
+					<ul>
+						<li />Click <a href="#" id="activationLink" target="_blank">here</a> to activate user <span id="activationHandle"/>.
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /activation dialog -->
+
+	<!-- forgot-password dialog -->
+	<div class="modal fade" id="forgot-passwd-dialog" tabindex="-1" role="dialog"
+		aria-labelledby="forgot-passwd-dialog-label" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="forgot-passwd-dialog-label">Password Recovery</h4>
+				</div>
+				<div class="modal-body">
+					<div id="forgot-passwd-alert" class="alert alert-danger alert-dismissible fade in" role="alert" style="display: none;">
+				      <span id="forgot-passwd-alert-message"/>
+				    </div>
+					<ul>
+						<li /> <input type="text" id="forgot-passwd-email" class="form-control" placeholder="Enter your username or email address" maxlength="100" />
+					</ul>
+				</div>
+				<div class="modal-footer">
+					<button type="button" id="button-forgot-passwd" class="btn btn-primary" data-loading-text="Processing..." autocomplete="off">Submit</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /forgot-password dialog -->
+
+	<!-- reset-password dialog -->
+	<div class="modal fade" id="reset-passwd-dialog" tabindex="-1" role="dialog"
+		aria-labelledby="reset-passwd-dialog-label" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="reset-passwd-dialog-label">Password Reset</h4>
+				</div>
+				<div class="modal-body">
+					<div id="reset-passwd-alert" class="alert alert-danger alert-dismissible fade in" role="alert" style="display: none;">
+				      <span id="reset-passwd-alert-message"/>
+				    </div>
+					<ul>
+						<li /> <input type="text" id="reset-password-handle" class="form-control" placeholder="Handle" maxlength="15" />
+						<li /> <input type="password" id="reset-password" class="form-control" placeholder="New Password" maxlength="30" />
+						<li /> <input type="password" id="reset-password-confirm" class="form-control" placeholder="Confirm password" maxlength="30" />
+						<li /> <input type="text" id="reset-token" class="form-control" placeholder="Unlock Code" maxlength="15" />
+					</ul>
+				</div>
+				<div class="modal-footer">
+					<button type="button" id="button-reset-passwd" class="btn btn-primary" data-loading-text="Processing..." autocomplete="off">Submit</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /reset-password dialog -->
+	
+	<!-- login dialog -->
+	<div class="modal fade" id="login-dialog" tabindex="-1" role="dialog"
+		aria-labelledby="login-dialog-label" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="login-dialog-label">Login</h4>
+				</div>
+				<div class="modal-body">
+					<div id="login-alert" class="alert alert-danger alert-dismissible fade in" role="alert" style="display: none;">
+				      <span id="login-alert-message"/>
+				    </div>
+					<ul>
+						<li /> <input type="text" id="client-id" class="form-control" placeholder="Client ID" maxlength="100" />
+						<li /> <input type="text" id="client-secret" class="form-control" placeholder="Client Secret" maxlength="100" />
+					</ul>
+				</div>
+				<div class="modal-footer">
+					<button type="button" id="button-login" class="btn btn-primary" data-loading-text="Logging in..." autocomplete="off">Login</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /login dialog -->
+	
+	<!-- API dialog -->
+	<div class="modal fade" id="api-dialog" tabindex="-1" role="dialog"
+		aria-labelledby="api-dialog-label" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="api-dialog-label">Try v3 API</h4>
+				</div>
+				<div class="modal-body">
+					<div id="api-alert" class="alert alert-danger alert-dismissible fade in" role="alert" style="display: none;">
+				      <span id="api-alert-message"/>
+				    </div>
+				    <dl>
+				      <dt>host:</dt>
+				      <dd><input class="form-control" type="text" id="host"/></dd>
+				      <dt>endpoint:</dt>
+				      <dd><input class="form-control" type="text" id="endpoint" value="/v3/"/></dd>
+				      <dt>resource:</dt>
+				      <dd><input class="form-control" type="text" id="resource" value="apisamples"/></dd>
+				      <dt>filter:</dt>
+				      <dd><input class="form-control" type="text" id="filter" size=70/></dd>
+				      <dt>limit:</dt>
+				      <dd><input class="form-control" type="text" id="limit"/></dd>
+				      <dt>offset:</dt>
+				      <dd><input class="form-control" type="text" id="offset"/></dd>
+				      <dt>orderBy:</dt>
+				      <dd><input class="form-control" type="text" id="orderBy"/></dd>
+				      <dt>fields:</dt>
+				      <dd><input class="form-control" type="text" id="fields" size=70/></dd>
+				      <dt>include:</dt>
+				      <dd><input class="form-control" type="text" id="include" size=70/></dd>
+				    </dl>
+				</div>
+				<div class="modal-footer">
+					<button type="button" id="btn-call" class="btn btn-primary" data-loading-text="Waiting..." autocomplete="off">Call API</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /API dialog -->
+	
+	<!-- settings dialog -->
+	<div class="modal fade" id="config-dialog" tabindex="-1" role="dialog" aria-labelledby="config-dialog-label" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="config-dialog-label">Settings</h4>
+				</div>
+				<div class="modal-body">
+					<dl>
+					<dd>Identity service host</dd>
+					<dt>
+					<select id="apihost" class="selectpicker" style="margin-top:10px;">
+						<option>api.topcoder-dev.com</option>
+						<option>api.topcoder-qa.com</option>
+						<option>api.topcoder.com</option>
+						<option>localhost:8080</option>
+						<option>localhost:9080</option>
+					</select>
+					</dt>
+					</dl>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /settings dialog -->
+	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select.min.js"></script>
+	<script src="https://cdn.auth0.com/js/lock-7.0.min.js"></script>
+	<script src="./jwt-decode.min.js"></script>
+	
+	<script type="text/javascript">
+<!--
+  /***** Auth0 *****/
+  var lock = null;
+  //var clientId = 'JFDo7HMkf0q2CkVFHojy3zHWafziprhT';
+  //var domain = 'topcoder-dev.auth0.com';
+  var clientId = '@auth0.clientId@';
+  var domain = '@auth0.domain@';
+
+  /***** SSO Provider *****/
+  var ssoConnection = null;
+  
+  /***** Setup *****/
+  
+
+  
+  document.addEventListener("DOMContentLoaded", function(){
+	//set parameter passed JWT token and remove if any.
+	var userJWTToken = getParameterByName('userJWTToken'),
+		status = getParameterByName('status'),
+		message = getParameterByName('message');
+	
+	if(userJWTToken && localStorage) {
+        localStorage.setItem('userJWTToken', userJWTToken);
+        window.history.replaceState({}, document.title, cleanUri());
+	}
+	
+	if(!!message) {
+		alert(decodeURIComponent(message));
+        window.history.replaceState({}, document.title, cleanUri());
+	}
+
+	// set API host
+	setIdentityHost();
+	
+	// auth0 login form
+	lock = new Auth0Lock(clientId, domain);
+	
+	// onclick handler
+    $('#btn-login').click(function(e) {
+        signin();
+    });
+    $('#btn-login-email').click(function(e) {
+        login_email();
+    });
+    $('#btn-login-samlp').click(function(e) {
+        login_samlp(ssoConnection);
+    });
+    $('#button-login').click(function(e) {
+        login_clientCredential();
+    });
+    $('#btn-logout').click(function(e) {
+    	if(window.confirm('Going to logout with '+apiHost())) {
+			logout(function(){
+				localStorage.removeItem('userJWTToken');
+				//userProfile = null;
+				//location.reload(true);
+				refreshScreen();
+			});
+    	}
+    });
+    $('#button-forgot-passwd').click(function(e) {
+    	if(window.confirm('Going to submit password recovery with '+apiHost())) {
+    		submitPasswordRecovery();
+    	}
+    });
+    $('#btn-reissue').click(function(e) {
+        if(window.confirm('Going to re-issue the token with '+apiHost())) {
+			reissueToken(function(data){
+				localStorage.setItem('userJWTToken', data.result.content.token);
+	            location.reload(true);
+			});
+        }
+    });
+    $('#btn-call').click(function(e) {
+    	callAPI();
+    });
+    $('#button-reg').click(function(e) {
+    	if(window.confirm('Going to register user with '+apiHost())) {
+	        register();
+    	}
+    });
+    $('#button-reset-passwd').click(function(e) {
+    	if(window.confirm('Going to rest password with '+apiHost())) {
+    		resetPassword();
+    	}
+    });
+    // register with social service
+    $('#reg-facebook').click(function(e) {
+    	registerSocial('facebook');
+    });
+    $('#reg-google').click(function(e) {
+    	registerSocial('google-oauth2');
+    });
+    $('#reg-twitter').click(function(e) {
+    	registerSocial('twitter');
+    });
+    $('#reg-github').click(function(e) {
+    	registerSocial('github');
+    });
+    
+    // JWT token setup for ajax call
+    $.ajaxSetup({
+      'beforeSend': function(xhr) {
+        if (localStorage.getItem('userJWTToken')) {
+          xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.getItem('userJWTToken'));
+        }
+      }
+    });
+
+	// Social provider callback
+	var hashParams = getParametersInHash();
+	if(hashParams && hashParams.access_token) {
+	  userInfo(hashParams.access_token);
+	}
+	// SSO Provider
+	if(hashParams) {
+		$.each(hashParams, function(key, elem) {
+			if(key && key.indexOf('tenant:')==0) {
+				ssoConnection = key.split(':')[1];
+			}
+		});
+		console.log(hashParams);
+		console.log('ssoConnection:'+ssoConnection);
+		if(ssoConnection && !message && !(localStorage && localStorage.getItem("userJWTToken"))) {
+			login_samlp(ssoConnection);
+		}
+	}
+
+	refreshScreen();
+  });
+
+  function cleanUri() {
+	var clean_uri = location.protocol + "//" + location.host + location.pathname,
+  	    hash = location.hash;
+  
+    if(hash && hash.indexOf('?')) {
+  	  hash = hash.split('?')[0];
+    }
+    return clean_uri + hash;
+  }
+  
+  function refreshScreen() {
+	if(localStorage && localStorage.getItem("userJWTToken")) {
+		$("#btn-group-login").hide();
+		$("#btn-login-samlp").hide();
+		$("#btn-forgot-passwd").hide();
+		$("#btn-reg").hide();
+		$("#btn-logout").show();
+		$("#btn-reissue").show();
+		updateLoginInfo()
+	} else {
+		$("#btn-group-login").show();
+		if(ssoConnection) {
+			$("#btn-login-samlp").show();
+			$("#sso-provider").val(ssoConnection);
+			$("#sso-profile").show();
+			$("#password").hide();
+			$("#password-confirm").hide();
+		}
+		$("#btn-forgot-passwd").show();
+		$("#btn-reg").show();
+		$("#btn-logout").hide();
+		$("#btn-reissue").hide();
+		$("#login-info").hide();
+	}
+	updateJWTToken()
+  }
+
+  function setIdentityHost() {
+	  var currentHost = location.host;
+	  var options = $("#apihost option");
+	  var optval;
+	  options.each(function(){ 
+		  optval = $(this).text(); 
+		  if(optval && optval.indexOf(currentHost)>-1) {
+			$("#apihost").val(optval);
+			$("#apihost").trigger('change');
+			return false;
+		  }
+	    }
+	  );
+	  prepareAPIDialog();
+  }
+
+  function apiHost() {
+	return location.protocol + "//" + $("#apihost").val();
+  }
+
+  function updateJWTToken() {
+    $("#profile").text("JWT Token: " + localStorage.getItem('userJWTToken'));
+  }
+
+  function updateLoginInfo() {
+  	var userId = decodeJwt().userId;
+  	if(!userId) {
+  	  return;
+  	}
+    var endpoint = apiHost() + '/v3/users/'+userId;
+    $.ajax({
+        url : endpoint,
+        type : 'GET',
+        success : function(data) {
+          console.log(data);
+          $('#login-handle').html(data.result.content.handle);
+  		  $("#login-info").show("fast");
+        },
+    	error : function(xhr,status,error) {
+          handleErrorReponse(xhr,status,error);
+    	}
+    });
+	
+	
+  }
+
+  /***** Login *****/
+  
+  function signin() {
+	var state = encodeURIComponent(window.location.href);
+    lock.show({
+        callbackURL: apiHost() + '/pub/callback.html'
+      , responseType: 'code'
+      , connections: ['LDAP', 'facebook', 'google-oauth2', 'twitter', 'github']
+      , authParams: {
+        scope: 'openid profile offline_access',
+        state: state
+      }
+      , usernameStyle: 'username'
+    });
+  }
+  
+  function login_email() {
+		var state = encodeURIComponent(window.location.href);
+	    lock.showSignin({
+	        callbackURL: apiHost() + '/pub/callback.html'
+	      , responseType: 'code'
+	      , connections: ['TC-User-Database', 'facebook', 'google-oauth2', 'twitter', 'github']
+	      , authParams: {
+	        scope: 'openid profile offline_access',
+	        state: state
+	      }
+	    });
+  }
+
+  function login_samlp(connection) {
+	var state = encodeURIComponent(window.location.href),
+	    authUrl = 'https://' + domain + '/authorize?' +
+	              'response_type=token' +
+	              '&client_id=' + clientId +
+	              '&connection=' + encodeURIComponent(connection) +
+	              '&scope=openid%20profile%20offline_access' +
+	              '&device=device' +
+	              '&redirect_uri=' + encodeURIComponent(apiHost() + '/pub/callback.html') +
+                  '&state=' + state;
+    console.log("Redirecting to: "+authUrl);
+    location.href = authUrl;
+  }
+  
+  function login_clientCredential() {
+	  $("#button-login").button('loading');
+      var endpoint = apiHost() + '/v3/authorizations',
+      		clientId = $("#client-id").val(),
+      		secret = $("#client-secret").val();
+      $.ajax({
+          url : endpoint,
+          type : 'POST',
+          data: "clientId="+encodeURIComponent(clientId)+"&secret="+encodeURIComponent(secret),
+          success : function(data) {
+              console.log(data);
+              $("#console").html("<pre>" + syntaxHighlight(data) + "</pre>");
+        	  $("#button-login").button('reset');
+        	  $("#login-dialog button.close").click();
+              localStorage.setItem('userJWTToken', data.result.content.token);
+              location.reload(true);
+          },
+      	  error : function(xhr,status,error) {
+      		  handleErrorReponse(xhr,status,error);
+      	      $("#button-login").button('reset');
+              $("#login-alert-message").text(getError(xhr,status,error));
+              $("#login-alert").show();
+      	  }
+      });
+  }
+
+  /***** Logout *****/
+  function logout(callback) {
+      var endpoint = apiHost() +'/v3/authorizations';
+      $.ajax({
+          url : endpoint,
+          type : 'DELETE',
+          contentType : 'application/json',
+          dataType : 'json',
+          success : function(data) {
+              console.log(data);
+              callback();
+          },
+       	  error : function(xhr,status,error) {
+       		  handleErrorReponse(xhr,status,error);
+              callback();
+      	  }
+      });
+  }
+  
+  /***** Re-Issue Token *****/
+  function reissueToken(callback) {
+      var endpoint = apiHost() + '/v3/authorizations/1';
+      $.ajax({
+          url : endpoint,
+          dataType : 'json',
+          success : function(data) {
+              console.log(data);
+              callback(data);
+          },
+      	  error : function(xhr,status,error) {
+      		  handleErrorReponse(xhr,status,error);
+		  }
+      });
+  }
+
+  /***** API Call *****/
+  function prepareAPIDialog() {
+	  $("#host").val(apiHost());
+  }
+  
+  function callAPI() {
+	  $("#btn-call").button('loading');
+      var endpoint = $("#host").val() + $("#endpoint").val() + $("#resource").val();
+      $.ajax({
+          url : endpoint,
+          dataType : 'json',
+          data: {fields: $("#fields").val(),
+                 filter: $("#filter").val(),
+                 limit: $("#limit").val(),
+                 offset: $("#offset").val(),
+                 offsetId: $("#offsetId").val(),
+                 orderBy: $("#orderBy").val(),
+                 include: $("#include").val(),
+              },
+          success : function(data) {
+              console.log(data);
+              $("#console").html("<pre>" + syntaxHighlight(data) + "</pre>");
+              $("#btn-call").button('reset');
+              $("#api-dialog button.close").click();
+          },
+      	  error : function(xhr,status,error) {
+      		  handleErrorReponse(xhr,status,error);
+	          $("#btn-call").button('reset');
+	          $("#api-alert-message").html(getError(xhr,status,error));
+	          $("#api-alert").show();
+      	  }
+      });
+  };
+  
+  /***** Registration *****/
+  function register() {
+	  if( $("#password").val() != $("#password-confirm").val() ) {
+		  $("#reg-alert-message").text("'Confirm password' and 'Password' do not match.");
+		  $("#reg-alert").show();
+		  return;
+	  }
+	  $("#button-reg").button('loading');
+      var userData = {
+      	handle: $("#handle").val(),
+      	email: $("#email").val(),
+      	firstName: $("#fname").val(),
+      	lastName: $("#sname").val(),
+      	credential: {
+		  password: $("#password").val(),
+        },
+        utmSource : "utm-source",
+        utmMedium : "utm-medium",
+        utmCampaign : "utm-campaign"
+      };
+      var country = $("#country").val();
+      if(country && country !== 'Country') {
+        userData.country = {
+          name: country
+        }
+      }
+      var socialId = $("#social-id").val();
+      if(socialId) {
+    	userData.profile = {
+    	  userId: socialId,
+    	  providerType: $("#social-provider").val(),
+    	  name: $("#social-name").val(),    	  
+    	  email: $("#social-email").val(),
+    	  emailVerified: $("#social-email-verified").val()
+    	}
+      }
+      if(ssoConnection) {
+      	userData.profile = {
+          userId: $("#sso-id").val(),
+          providerType: "samlp",
+          provider: ssoConnection,
+          name: $("#sso-name").val(),    	  
+          email: $("#sso-email").val()
+       	};
+      	userData.active = true;
+      }
+
+      // options
+      var retUrl = location.href.replace(location.hash,""),
+          opts = { afterActivationURL : retUrl },
+          payload = JSON.stringify({ param: userData, options: opts });
+      $.ajax({
+          url : apiHost() + '/v3/users',
+          type : 'POST',
+          contentType : 'application/json',
+          dataType : 'json',
+          data: payload,
+          success : function(data) {
+              console.log(data);
+              $("#console").html("<pre>" + syntaxHighlight(data) + "</pre>");
+        	  $("#button-reg").button('reset');
+        	  $("#reg-dialog button.close").click();
+        	  // show activation dialog if user is not active. 
+        	  if(!data.result.content.active) {
+        	  	showActivationDialog(data.result.content.handle, data.result.content.credential.activationCode);
+        	  }
+          },
+      	  error : function(xhr,status,error) {
+      		  handleErrorReponse(xhr,status,error);
+      	      $("#button-reg").button('reset');
+              $("#reg-alert-message").text(getError(xhr,status,error));
+              $("#reg-alert").show();
+      	  }
+      });
+  }
+
+  function registerSocial(connection) {
+	var state = encodeURIComponent(location.href.replace(location.hash,"")),
+        redirectUrl = 
+      'https://' + domain + '/authorize' +
+      '?scope=openid' +
+      '&response_type=token' +
+      '&connection=' + connection +
+      '&state=' + state +
+      '&client_id=' + clientId +
+      '&redirect_uri=' + state;
+
+    console.log("Redirecting to: "+redirectUrl);
+    location.href = redirectUrl;
+  }
+
+  /***** Activation *****/
+  function showActivationDialog(handle, activationCode) {
+	$("#activationLink").attr("href", apiHost() + '/pub/activation.html?code='+activationCode+"&retUrl="+encodeURIComponent(apiHost()+"/sample/index2.html"));
+	$("#activationHandle").html(handle);
+    $("#activate-dialog").modal('show');
+  }
+
+  /***** Forgot Password *****/
+  function submitPasswordRecovery() {
+	  $("#button-forgot-passwd").button('loading');
+
+	  var keyword = $("#forgot-passwd-email").val(),
+	      field = keyword && keyword.indexOf('@')>=0 ? 'email' : 'handle',
+	      endpoint = apiHost() + '/v3/users/resetToken?'+field+'='+encodeURIComponent(keyword);
+
+      $.ajax({
+          url : endpoint,
+          type : 'GET',
+          success : function(data) {
+              console.log(data);
+              $("#console").html("<pre>" + syntaxHighlight(data) + "</pre>");
+        	  $("#button-forgot-passwd").button('reset');
+        	  $("#forgot-passwd-alert").hide();
+        	  $("#forgot-passwd-dialog button.close").click();
+        	  // Password Reset
+        	  showPasswordResetDialog(data.result.content); 
+          },
+      	  error : function(xhr,status,error) {
+      		  handleErrorReponse(xhr,status,error);
+      	      $("#button-forgot-passwd").button('reset');
+              $("#forgot-passwd-alert-message").text(getError(xhr,status,error));
+              $("#forgot-passwd-alert").show();
+      	  }
+      });
+  }
+
+  /***** Password Reset *****/
+  function showPasswordResetDialog(user) {
+	var handle = user.handle,
+	    resetToken = user.credential.resetToken,
+	    profile = user.profile;
+
+    if(profile && profile.social) {
+		$("#reset-passwd-alert-message").text("It looks like you have a social account associated with your profile. You can login using your "+profile.providerType+" account.");
+		$("#reset-passwd-alert").show();
+    } else if(profile && profile.enterprise) {
+		$("#reset-passwd-alert-message").text("It looks like you have an external account associated with your profile. You can single sign on with your external account.");
+		$("#reset-passwd-alert").show();
+    } else {
+    	$('#reset-password-handle').val(handle);
+    	$('#reset-token').val(resetToken);
+    }
+    $('#reset-passwd-dialog').modal('show');
+  }
+
+  function resetPassword() {
+	  if( $("#reset-password").val() != $("#reset-password-confirm").val() ) {
+		  $("#reset-passwd-alert-message").text("'Confirm password' and 'Password' do not match.");
+		  $("#reset-passwd-alert").show();
+		  return;
+	  }
+	  $("#button-reset-passwd").button('loading');
+      var endpoint = apiHost() + '/v3/users/resetPassword';
+      var payload = JSON.stringify(
+          { param: {
+          	  handle: $("#reset-password-handle").val(),
+          	  credential: {
+			    password: $("#reset-password").val(),
+			    resetToken: $("#reset-token").val()
+              }
+            }});
+      $.ajax({
+          url : endpoint,
+          type : 'PUT',
+          contentType : 'application/json',
+          dataType : 'json',
+          data: payload,
+          success : function(data) {
+              console.log(data);
+              $("#console").html("<pre>" + syntaxHighlight(data) + "</pre>");
+        	  $("#button-reset-passwd").button('reset');
+        	  $("#reset-passwd-alert").hide();
+        	  $("#reset-passwd-dialog button.close").click();
+          },
+      	  error : function(xhr,status,error) {
+      		  handleErrorReponse(xhr,status,error);
+      	      $("#button-reset-passwd").button('reset');
+              $("#reset-passwd-alert-message").text(getError(xhr,status,error));
+              $("#reset-passwd-alert").show();
+      	  }
+      });
+  }
+
+  /***** User profile *****/
+  function userInfo(accessToken) {
+      var endpoint = 'https://' + domain + '/userinfo?access_token=' + accessToken;
+      $.ajax({
+          url : endpoint,
+          type : 'GET',
+          success : function(data) {
+              console.log(data);
+              userIdItems = data.user_id.split('|');
+              $("#social-id").val(userIdItems[userIdItems.length-1]);
+              $("#social-provider").val(userIdItems[0]);
+              $("#social-name").val(data.nickname || data.screen_name || data.name);
+              $("#handle").val($("#social-name").val());
+              
+              $("#social-email").val(data.email);
+              $("#social-email-verified").val(data.email_verified);
+              $("#email").val($("#social-email").val());
+
+              $("#password").val('');
+              $("#password").hide();
+              $("#password-confirm").val('');
+              $("#password-confirm").hide();
+              
+              $("#social-profile").show();
+              $("#reg-dialog").modal('show');
+          },
+      	  error : function(xhr,status,error) {
+      		  handleErrorReponse(xhr,status,error);
+      	  }
+      });
+  }
+  
+  /***** Utility *****/
+
+  function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search || location.hash);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+  }
+
+  function getParametersInHash() {
+    if(1 >= window.location.hash.length) {
+	  return {};
+	}
+	return parseQuery(window.location.hash.substring(1));
+  }
+	  
+  function getParameters() {
+    if(1 >= window.location.search.length) {
+      return {};
+    }
+    return parseQuery(window.location.search.substring(1));
+  }
+  
+  function parseQuery(query) {
+    var params = {};
+    if(!query)
+      return params;
+    var kvs = query.split('&');
+    for(var i=0; i<kvs.length; i++) {
+      if(kvs[i].indexOf('=')<0) {
+        params[decodeURIComponent(kvs[i])] = null;
+        continue;
+      }
+      var pair = kvs[i].split('=');
+      params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+    }
+    return params;
+  }
+  
+  function handleErrorReponse(xhr,status,error) {
+	console.log(status);
+	console.log(error);
+	console.log(xhr.responseJSON);
+	var context = "status: " + xhr.status + " " + error + "<br/>" + 
+				"context:<br/><pre>" + syntaxHighlight(xhr.responseJSON) + "</pre>";
+	$("#console").html(context);
+  }
+
+  function getError(xhr,status,error) {
+	  var msg = "";
+	  if(xhr && xhr.responseJSON && xhr.responseJSON.result && xhr.responseJSON.result.content) {
+		  return xhr.responseJSON.result.content;
+	  }
+	  return "Error occurred. status:" + status + " " + error;
+  }
+
+  function decodeJwt() {
+	  if(localStorage && localStorage.getItem("userJWTToken")) {
+        var decoded = jwt_decode(localStorage.getItem("userJWTToken"));
+        //return JSON.stringify(decoded, null, 2);
+        return decoded;
+	  }
+	  return null;
+  }
+  
+  function syntaxHighlight(json) {
+	  if (!json) {
+		  return;
+	  }
+      if (typeof json != 'string') {
+          json = JSON.stringify(json, undefined, 2);
+      }
+      json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return json.replace(
+                      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+                      function(match) {
+                          var cls = 'number';
+                          if (/^"/.test(match)) {
+                              if (/:$/.test(match)) {
+                                  cls = 'key';
+                              } else {
+                                  cls = 'string';
+                              }
+                          } else if (/true|false/.test(match)) {
+                              cls = 'boolean';
+                          } else if (/null/.test(match)) {
+                              cls = 'null';
+                          }
+                          return '<span class="' + cls + '">' + match + '</span>';
+                      });
+  }
+  //-->
+</script>
+</body>
+</html>

@@ -1,0 +1,1691 @@
+FORMAT: 1A
+HOST: https://api.topcoder.com/v3
+
+# ap-identity-microservice
+
+Authentication & Authorization service
+
+## Authorization [/authorizations]
+
+
+### Login - Create Authorization 1 [POST /authorizations]
+
+The API creates Authorization from Auth0 JWT and Refresh token.<br/>
+This is supposed to be used in client-side.<br/>
+
+The API also creates the following cookies for compatibility with the existing system.
+<table>
+<tr><td>tcjwt</td><td>The tcjwt cookie stores JWT token issued by Auth0.</td></tr>
+<tr><td>tcsso</td><td>The tcsso cookie stores the encoded key to enable Single Sign On with services like wiki, forums, etc.</td></tr>
+</table>
+
+###### The response body should contain Authorization object which contains JWT token generated from Auth0 token:
+
+<code>
+    {
+        "target": "1",
+        "token": "eyJ0eXAiOi...."
+    }
+</code>
+
+
+This API consumes JWT and refresh token gained by Auth0, which are supposed to be gained from Auth0 in advance.<br/>
+
+###### The following call authenticates user and then redirects to CALLBACK-URL with id_token(jwt token) and refresh_token in its hash:
+
+    https://topcoder.auth0.com/authorize?
+         response_type=token
+        &client_id=[CLIENT-ID]
+        &connection=[CONNECTION]
+        &scope=openid%20profile%20offline_access
+        &device=device
+        &redirect_uri=[CALLBACK-URL]
+        &state=[STATE]
+
+
+###### Redirected URL:
+
+    [CALLBACK-URL]#access_token=[ACCESS-TOKEN]
+        &refresh_token=[REFRESH-TOKEN]
+        &id_token=[JWT-TOKEN]
+        &token_type=Bearer
+        &state=[STATE]
+
+
+It is supposed that the front-end script inside the contents of [CALLBACK-URL] should call this API with these id_token and refresh_token to gain the ASP-JWT.
+
+##### The callback page in Identity service:
+Indentity service provides the callback page which contains scripts to handle this calback.
+The callback page parses the hash and then calls `Create Authorization` to gain a JWT token and finally it redirects to the URL pointed by the "state" parameter.
+
+###### Callback page URL:
+    <API-HOST>/pub/callback.html
+
+
+
++ Request (application/json)
+
+    + Attributes (AuthorizationRequest)
+
+    + Body
+
+            { "param":
+                {
+                    "target": "1",
+                    "externalToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI2OGRiODQ5MzExYzkyZTZhYWM5ZWE0ZTg1NWZiMWVhZSIsIm5hbWUiOiJrb2hhdGF0ZXN0NDAiLCJuaWNrbmFtZSI6ImtvaGF0YXRlc3Q0MCIsImdyb3VwcyI6W10sImRuIjoidWlkPTQwMTM1NDcxLG91PW1lbWJlcnMsZGM9dG9wY29kZXIsZGM9Y29tIiwiY2xpZW50SUQiOiJKRkRvN0hNa2YwcTJDa1ZGSG9qeTN6SFdhZnppcHJoVCIsInBpY3R1cmUiOiJodHRwczovL3NzbC5nc3RhdGljLmNvbS9zMi9wcm9maWxlcy9pbWFnZXMvc2lsaG91ZXR0ZTgwLnBuZyIsInVzZXJfaWQiOiJhZHxMREFQfDQwMTM1NDcxIiwiaWRlbnRpdGllcyI6W3sidXNlcl9pZCI6IkxEQVB8NDAxMzU0NzEiLCJwcm92aWRlciI6ImFkIiwiY29ubmVjdGlvbiI6IkxEQVAiLCJpc1NvY2lhbCI6ZmFsc2V9XSwiY3JlYXRlZF9hdCI6IjIwMTUtMDQtMjdUMDM6MTI6NTcuNDA1WiIsImdsb2JhbF9jbGllbnRfaWQiOiJBa0sxUWJaSFV3RUMyOFNpU01rUUg4ZWhKSlJwM2k0NyIsImlzcyI6Imh0dHBzOi8vdG9wY29kZXItZGV2LmF1dGgwLmNvbS8iLCJzdWIiOiJhZHxMREFQfDQwMTM1NDcxIiwiYXVkIjoiSkZEbzdITWtmMHEyQ2tWRkhvankzekhXYWZ6aXByaFQiLCJleHAiOjE0MzA3NDM0MDksImlhdCI6MTQzMDcwNzQwOX0.yhFh-FARXuwHsr9sc99hjcKnpqhnQ3pyWxTdCrUdL7U",
+                    "refreshToken": "e2cuLeTRgk4BfMNZ2m5Ltqc5aanmmdrAkaYS1WGCTFqZT"
+                }
+            }
+
++ Response 200 (application/json)
+
+    + Attributes (AuthorizationReponse)
+    
+    + Body
+    
+            {
+                "id": "e7e20a6:14e2b1547c7:-7fe8",
+                "result": {
+                    "content": {
+                        "id": "1493667075",
+                        "target": "1",
+                        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2FwaS50b3Bjb2Rlci1xYS5jb20iLCJleHAiOjE0MzU2NTA0NzIsInVzZXJJZCI6IjQwMDk3NjM2IiwiaWF0IjoxNDM1NjQ5ODcyLCJqdGkiOiIwNTAzMzEzZi1iOWUwLTRjZjItYWViZC1lNWQxZDQ0YWQzMTAifQ.n5m_4Q5x1GIKd2vDWB3LSdQjLiPdR775dUkMy0nwQo4"
+                        "createdAt": null,
+                        "createdBy": null,
+                        "modifiedAt": null,
+                        "modifiedBy": null
+                    },
+                    "metadata": null,
+                    "status": 200,
+                    "success": true
+                },
+                "version": "v3"
+            }
+
++ Response 400 (application/json)
+
+    Error: Missing External token
+    
+    + Attributes (BadRequestResponse)
+
++ Response 403 (application/json)
+
+    Error: Account Inactive
+    
+    + Attributes (ForbiddenResponse)
+
+### Login - Create Authorization 2 [POST /authorizations]
+
+The API creates Authorization with an authorization code gained from Auth0 in advance.<br/>
+This is supposed to be used in server-side.<br/>
+The API also creates cookies (tcjwt & tcsso). See the section of "Create Authorization 1".<br/>
+
+
+###### The following call authenticates user and then redirects to CALLBACK-URL with "code" as a query parameter:
+
+    https://topcoder.auth0.com/authorize?
+         response_type=code
+        &client_id=[CLIENT-ID]
+        &connection=[CONNECTION]
+        &redirect_uri=[CALLBACK-URL]
+        &state=[STATE]
+
+###### Redirected URL:
+
+    [CALLBACK-URL]?code=[CODE]&state=[STATE]
+
+It is supposed that the call back page should handle the code and call this API to gain the ASP-JWT.
+
+The Identity Service's callback page does also suport to handle the callback of this type.
+
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Auth0Code 62CQWTz6I6TCaN8X
+
++ Response 200 (application/json)
+
+    + Attributes (AuthorizationReponse)
+
+    + Body
+
+            {
+                "id": "e7e20a6:14e2b1547c7:-7fe8",
+                "result": {
+                    "content": {
+                        "id": "1493667075",
+                        "target": "1",
+                        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2FwaS50b3Bjb2Rlci1xYS5jb20iLCJleHAiOjE0MzU2NTA0NzIsInVzZXJJZCI6IjQwMDk3NjM2IiwiaWF0IjoxNDM1NjQ5ODcyLCJqdGkiOiIwNTAzMzEzZi1iOWUwLTRjZjItYWViZC1lNWQxZDQ0YWQzMTAifQ.n5m_4Q5x1GIKd2vDWB3LSdQjLiPdR775dUkMy0nwQo4"
+                        "createdAt": null,
+                        "createdBy": null,
+                        "modifiedAt": null,
+                        "modifiedBy": null
+                    },
+                    "metadata": null,
+                    "status": 200,
+                    "success": true
+                },
+                "version": "v3"
+            }
+
++ Response 400 (application/json)
+
+    Error: Missing Auth0 Code
+    
+    + Attributes (BadRequestResponse)
+    
++ Response 403 (application/json)
+
+    Error: Account Inactive
+    
+    + Attributes (ForbiddenResponse)
+
+### Login - Create Authorization 3 [POST /authorizations]
+
+This API creates Authorization with a system user after authentication by the specified client ID and secret.
+
+This is provided for the particular cases that need authentication/authorization with out user interaction, for example, batch processes to call endpoints from any server-side proccess which is initiated by itself (not users).
+
++ Request (application/x-www-form-urlencoded)
+
+    + Attributes
+        + clientId (string, required) - The client ID
+        + secret (string, required) - The secret
+
+    + Body
+    
+            clientId=AKIAJ7RXX5BMU4W4E4GA&secret=952Jr211yA%2FqH8n035Y26ml%2BR1fLmJXu7ZRR9S%2F7
+
++ Response 200 (application/json)
+
+    + Attributes (AuthorizationReponse)
+
+    + Body
+    
+            {
+                "id": "e7e20a6:14e2b1547c7:-7fe8",
+                "result": {
+                    "content": {
+                        "id": "1493667075",
+                        "target": "1",
+                        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2FwaS50b3Bjb2Rlci1kZXYuY29tIiwiZXhwIjoxNDM2MTc2NTA3LCJ1c2VySWQiOiIyMjgzODk2NSIsImlhdCI6MTQzNjE3NTkwNywianRpIjoiOWEzNGExYjQtOTliMy00YzZhLWIyZmEtMzE5YjJiNzVhNTAwIn0.EacUtzKuv8NAKLe9J8t4k-ZzN6ink4GGgQVng0BIW_8"
+                        "createdAt": null,
+                        "createdBy": null,
+                        "modifiedAt": null,
+                        "modifiedBy": null
+                    },
+                    "metadata": null,
+                    "status": 200,
+                    "success": true
+                },
+                "version": "v3"
+            }
+
++ Response 400 (application/json)
+
+    Error: Missing Clinet ID and/or Secret
+
+    + Attributes (BadRequestResponse)
+
++ Response 401 (application/json)
+
+    Error: Wrong Clinet ID and/or Secret
+
+    + Attributes (UnauthorizedResponse)
+
+
+### Get Authorization [GET /authorizations/{id}]
+
+This API returns Authorization with new ASP token created from given Authorization Bearer header.
+
+Bearer can hold either of 2 token, (a) Appirio Service Platform JWT or (b) Auth0 JWT
+
+- (a) is the normal case, that JWT was created in this Identity Service, hence access/refresh token are stored in cache. Verify that the JWT is valid, and return the refreshed new JWT.
+
+- (b) This is to support legacy login system. Auth0 JWT comes in if user logged in from legacy site (since legacy login site only have Auth0 JWT in tcjwt cookie.) We'll exchange Auth0 token with ASP token and give it back.
+
++ Parameters
+    + id: `1` (string)
+
++ Request
+
+    + Headers
+
+            Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2FwaS50b3Bjb2Rlci1xYS5jb20iLCJleHAiOjE0MzU2NTA0NzIsInVzZXJJZCI6IjQwMDk3NjM2IiwiaWF0IjoxNDM1NjQ5ODcyLCJqdGkiOiIwNTAzMzEzZi1iOWUwLTRjZjItYWViZC1lNWQxZDQ0YWQzMTAifQ.n5m_4Q5x1GIKd2vDWB3LSdQjLiPdR775dUkMy0nwQo4
+
++ Response 200 (application/json)
+
+        {
+            "id": "-e7e20a6:14e2b1547c7",
+            "result": {
+                "content": {
+                    "id": "1493667075",
+                    "target": "1",
+                    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2FwaS50b3Bjb2Rlci1xYS5jb20iLCJleHAiOjE0MzU2NzM0NjQsInVzZXJJZCI6IjQwMDk3NjM2IiwiaWF0IjoxNDM1NjcyODY0LCJqdGkiOiIxM2RiNzE1Ny03YTBkLTQ0NGUtYjBlZS1iMmQ0NzFlNjZiNjIifQ.f1qiytCiLWNxiwtuBScoXTfPz9BlUph3H7O-KJKPuxU"
+                    "createdAt": null,
+                    "createdBy": null,
+                    "modifiedAt": null,
+                    "modifiedBy": null
+                },
+                "metadata": null,
+                "status": 200,
+                "success": true
+            },
+            "version": "v3"
+        }
+
++ Response 401 (application/json)
+
+    Error: Missing Bearer or JWT is expired.
+
+    + Attributes (UnauthorizedResponse)
+    
+
+### Logout - Delete Authorization [DELETE /authorizations/{id}]
+
+This API deletes Authorization (performing Logout).<br>
+The API also deletes cookies (tcjwt & tcsso). See the section of "Create Authorization 1".<br/>
+
+
++ Parameters
+    + id: "1"
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2FwaS50b3Bjb2Rlci1xYS5jb20iLCJleHAiOjE0MzU2NTA0NzIsInVzZXJJZCI6IjQwMDk3NjM2IiwiaWF0IjoxNDM1NjQ5ODcyLCJqdGkiOiIwNTAzMzEzZi1iOWUwLTRjZjItYWViZC1lNWQxZDQ0YWQzMTAifQ.n5m_4Q5x1GIKd2vDWB3LSdQjLiPdR775dUkMy0nwQo4
+
++ Response 200 (application/json)
+
+        {
+            "id": "-e7e20a6:14e2b1547c7:-7fd3",
+            "result": {
+                "success": true,
+                "status": 200,
+                "metadata": null,
+                "content": null
+            },
+            "version": "v3"
+        }
+
++ Response 401 (application/json)
+
+    Error: Missing Bearer or JWT is expired.
+
+    + Attributes (UnauthorizedResponse)
+
+## User [/users]
+
+### Get User [GET /users/{id}?fields=]
+
+Get the User specified by the id.
+    <table>
+    <tr>
+    <th>credential.hasPassword</th>
+    <td>The "hasPassword" tells whether the user has set his/her own password.
+    Users who registered with their social account don't set their own password initially.
+    </td>
+    </tr>
+    <tr>
+    <th>credential.resetToken</th>
+    <td>The "resetToken" gives a token to reset user's password.
+    This field has a value only in a response in Reset Token endpoint invocation.
+    </td>
+    </tr>
+    <tr>
+    <th>profiles</th>
+    <td>The "profiles" is an array containing external account information which are bound with the user.
+    This is not contained in result in default. It should be specified in "fields" parameter in the endpoint to get this. 
+    </td>
+    </tr>
+    </table>
+
+
++ Parameters
+    + id: `40097636` (number, required) - User ID
+    + fileds: `id,handle,profiles` (string) - Field list(comma separated)
+
+
++ Request
+
+    + Headers
+
+            Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2FwaS50b3Bjb2Rlci1xYS5jb20iLCJleHAiOjE0MzU2NzM0NjQsInVzZXJJZCI6IjQwMDk3NjM2IiwiaWF0IjoxNDM1NjcyODY0LCJqdGkiOiIxM2RiNzE1Ny03YTBkLTQ0NGUtYjBlZS1iMmQ0NzFlNjZiNjIifQ.f1qiytCiLWNxiwtuBScoXTfPz9BlUph3H7O-KJKPuxU
+
++ Response 200 (application/json)
+
+        {
+            "id": "-1d9637e7:150003e7025:-7e9e",
+            "result": {
+                "success": true,
+                "status": 200,
+                "metadata": null,
+                "content": {
+                    "id": "40135593",
+                    "handle": "johndoe",
+                    "email": "johndoe@appirio.com",
+                    "firstName": "John",
+                    "lastName": "Doe",
+                    "credential": {
+                        "activationCode": "13IORQ0BFS7",
+                        "resetToken": null,
+                        "hasPassword": true
+                    },
+                    "country": null,
+                    "profile": null,
+                    "profiles": [
+                        {
+                        "userId": "990809136340930481332",
+                        "name": "jdoe",
+                        "email": "johndoe@appirio.com",
+                        "providerType": "google-oauth2",
+                        "provider": null,
+                        "context": null,
+                        "social": true,
+                        "enterprise": false,
+                        "emailVerified": true
+                        }
+                    ]
+                    "regSource": "reg-source",
+                    "utmSource": "utm-source",
+                    "utmMedium": "utm-medium",
+                    "utmCampaign": "utm-campaign",
+                    "active": true,
+                    "emailActive": true,
+                    "modifiedBy": null,
+                    "modifiedAt": "2015-09-25T03:56:16.000Z",
+                    "createdBy": null,
+                    "createdAt": "2015-06-05T14:11:38.000Z"
+                }
+            },
+            "version": "v3"
+        }
+
++ Response 400 (application/json)
+
+    Error: Missing id
+
+    + Attributes (BadRequestResponse)
+
++ Response 401 (application/json)
+
+    Error: Missing Bearer or JWT is expired.
+
+    + Attributes (UnauthorizedResponse)
+
++ Response 404 (application/json)
+
+    Error: User does not exist.
+
+    + Attributes (NotFoundResponse)
+
+### Create User [POST /users]
+
+Create a new user in the system with the data on payload.
+If the User's status is not specified or specified as inactive (active:false), an activation mail is sent to the specified email address.
+
+URL redirected after the activation can be specified in "afterActivationURL" in the "options" field. <br/>
+<code>
+{"param": { ... }, "options": { "afterActivationURL": "URL"}}
+</code>
+
+
++ Request (application/json)
+
+        {
+            "param": {
+                "handle": "johndoe",
+                "firstName": "John",
+                "lastName": "Doe",
+                "email": "johndoe@appirio.com",
+                "country": {
+                    "isoAlpha3Code": "USA"
+                },
+                "credential": {
+                    "password": "VALID_PASSWORD"
+                },
+                "regSource": "REG_SOURCE",
+                "utmSource": "UTM_SOURCE",
+                "utmMedium": "UTM_MEDIUM",
+                "utmCampaign": "UTM_CAMPAIGN"
+            }
+        }
+
++ Response 200 (application/json)
+
+        {
+            "id": "-e7e20a6:14e2b1547c7:-7fd8",
+            "result": {
+                "success": true,
+                "status": 200,
+                "metadata": null,
+                "content": {
+                    "id": "40136023",
+                    "handle": "johndoe",
+                    "email": "johndoe@appirio.com",
+                    "firstName": "John",
+                    "lastName": "Doe",
+                    "credential": {
+                        "activationCode": "13IPBGV6S2G",
+                        "resetToken": null
+                    },
+                    "profile": null,
+                    "country": {
+                        "code": "840",
+                        "name": "United States",
+                        "isoAlpha2Code": "US",
+                        "isoAlpha3Code": "USA"
+                    },
+                    "regSource": "REG_SOURCE",
+                    "utmSource": "UTM_SOURCE",
+                    "utmMedium": "UTM_MEDIUM",
+                    "utmCampaign": "UTM_CAMPAIGN",
+                    "active": false,
+                    "modifiedBy": null,
+                    "modifiedAt": null,
+                    "createdBy": null,
+                    "createdAt": null
+                }
+            },
+            "version": "v3"
+        }
+
++ Response 400 (application/json)
+
+    Error in the validation check:
+    + Handle - should be valid and not-duplicated.
+        - mandatoty
+        - length 2-15
+        - not allowed to contain blank space
+        - able to contain only alphabets, numbers and punctuations
+        - not allowed to contain only punctuations
+        - punctuations: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
+    + Email - should be valid and not-duplicated.
+        - mandatoty
+    + Password - should be valid
+        - mandatoty
+        - length 8-64
+        - must contain an alphabet
+        - must contain a number or punctuation
+    + FirstName/LastName
+        - length 0-64
+    + Country - should contain at least one of a valid name, valid iso-alphabet-code(2 or 3).
+
+    + Attributes (BadRequestResponse)
+
+### Create User with Social Account [POST /users]
+
+Create a new user in the system with the data on payload, which contains social account information to relate new user with it.
+"profile" should have the social account information.
+
++ Parameters
+    + profile.userId (string, required) - The user Id in the social account. Requred field.
+    + profile.name (string) - The user name in the social account
+    + profile.email (string) - The email in the social account
+    + profile.emailVerified (string) - Is the email varified?
+    + profile.providerType (string) - facebook | google-oauth2 | twitter | github
+
++ Request (application/json)
+
+        {
+            "param": {
+                "handle": "johndoe",
+                "firstName": "John",
+                "lastName": "Doe",
+                "email": "johndoe@appirio.com",
+                "country": {
+                    "name": "United States"
+                },
+                "profile": {
+                    "userId": "SOCIAL_USER_ID",
+                    "name": "SOCIAL_USER_NAME", 
+                    "email": "SOCIAL_EMAIL", 
+                    "emailVerified": "SOCIAL_EMAIL_VERIFIED", 
+                    "providerType": "SOCIAL_PROVIDER"
+                },
+                "regSource": "REG_SOURCE",
+                "utmSource": "UTM_SOURCE",
+                "utmMedium": "UTM_MEDIUM",
+                "utmCampaign": "UTM_CAMPAIGN"
+            }
+        }
+
++ Response 200 (application/json)
+
+        {
+            "id": "-e7e20a6:14e2b1547c7:-7fd8",
+            "result": {
+                "success": true,
+                "status": 200,
+                "metadata": null,
+                "content": {
+                    "id": "40136023",
+                    "handle": "johndoe",
+                    "email": "johndoe@appirio.com",
+                    "firstName": "John",
+                    "lastName": "Doe",
+                    "credential": {
+                        "activationCode": "13IPBGV6S2G",
+                        "resetToken": null
+                    },
+                    "profile": {
+                        "userId": "SOCIAL_USER_ID",
+                        "name": "SOCIAL_USER_NAME", 
+                        "email": "SOCIAL_EMAIL", 
+                        "emailVerified": "SOCIAL_EMAIL_VERIFIED", 
+                        "providerType": "SOCIAL_PROVIDER"
+                    },
+                    "country": {
+                        "code": "840",
+                        "name": "United States"
+                    },
+                    "regSource": "REG_SOURCE",
+                    "utmSource": "UTM_SOURCE",
+                    "utmMedium": "UTM_MEDIUM",
+                    "utmCampaign": "UTM_CAMPAIGN",
+                    "active": false,
+                    "modifiedBy": null,
+                    "modifiedAt": null,
+                    "createdBy": null,
+                    "createdAt": null
+                }
+            },
+            "version": "v3"
+        }
+        
++ Response 400 (application/json)
+
+    Error in the validation check:
+    + Handle - should be valid and not-duplicated.
+    + Email - should be valid and not-duplicated.
+    + Country - should contain a valid name.
+    + Social/SSO Account - should be not in use.
+    
+    (TODO: detailed specification for each case should be described here)
+
+    + Attributes (BadRequestResponse)
+
+
+### Activate User [PUT /users/activate?code={activationCode}]
+
+Activate the user identified by the specified activation code and then return the activated User.<br/>
+
+>   TODO: <br/>
+>   Is better to take activation code as User json?
+
++ Parameters
+    + activationCode: `13IPBGV6S2G` (string, required) - Activation Code
+
++ Response 200 (application/json)
+
+        {
+            "id": "1a57f146:14e3e052720:-5471",
+            "result": {
+                "success": true,
+                "status": 200,
+                "metadata": null,
+                "content": {
+                    "id": "40136023",
+                    "handle": "johndoe",
+                    "email": "johndoe@appirio.com",
+                    "firstName": "John",
+                    "lastName": "Doe",
+                    "credential": {
+                        "id": null,
+                        "modifiedBy": null,
+                        "modifiedAt": null,
+                        "createdBy": null,
+                        "createdAt": null,
+                        "activationCode": "13IPBGV6S2G",
+                        "resetToken": null
+                    },
+                    "profile": null,
+                    "country": {
+                        "code": "840",
+                        "name": "United States"
+                    },
+                    "utmSource": "UTM_SOURCE",
+                    "utmMedium": "UTM_MEDIUM",
+                    "utmCampaign": "UTM_CAMPAIGN",
+                    "active": true,
+                    "modifiedBy": null,
+                    "modifiedAt": null,
+                    "createdBy": null,
+                    "createdAt": null
+                }
+            },
+            "version": "v3"
+        }
+
++ Response 400 (application/json)
+
+    Error in the validation check:
+    + activationCode - should be valid.
+    + The target user should not be activated.
+    
+    (TODO: detailed specification for each case should be described here)
+
+    + Attributes (BadRequestResponse)
+    
+
+### Generate Reset Token [GET /users/resetToken?handle={handle}&email={email}]
+
+Generate a reset token to reset password for the paticular user specified by its handle or email.
+Either one of them is requred. If both handle AND email is specified, email will be ignored.
+
++ Parameters
+    + handle: `johndoe` (string) - Handle
+    + email: `johndoe@appirio.com` (string) - Email
+
++ Response 200 (application/json)
+
+        {
+            "id": "1a57f146:14e3e052720:-5468",
+            "result": {
+                "success": true,
+                "status": 200,
+                "metadata": null,
+                "content": {
+                    "id": "40136023",
+                    "handle": "johndoe",
+                    "email": "johndoe@appirio.com",
+                    "firstName": "John",
+                    "lastName": "Doe",
+                    "credential": {
+                        "id": null,
+                        "modifiedBy": null,
+                        "modifiedAt": null,
+                        "createdBy": null,
+                        "createdAt": null,
+                        "activationCode": "13IOU3M4CKM",
+                        "resetToken": "pcnO29"
+                    },
+                    "profile": null,
+                    "country": null,
+                    "utmSource": null,
+                    "utmMedium": null,
+                    "utmCampaign": null,
+                    "active": true,
+                    "modifiedBy": null,
+                    "modifiedAt": null,
+                    "createdBy": null,
+                    "createdAt": null
+                }
+            },
+            "version": "v3"
+        }
+
++ Response 400 (application/json)
+
+    Error in the validation check:
+    + Handle/Email - at least one of handle and email should be specified.
+    + Un-expired reset token exists - New reset token can not be issued for the same user before the previous one is expired.
+
+    + Attributes (BadRequestResponse)
+
++ Response 404 (application/json)
+
+    Error: User does not exists, which is specified by handle or email.
+
+    + Attributes (NotFoundResponse)
+
+
+### Reset Password [PUT /users/resetPassword]
+
+Reset password of the user with the specified User data on payload.
+
+The user data should contain the credential containing new password and reset token.
+
++ Request (application/json)
+
+        {
+            "param": {
+                "handle": "johndoe",
+                "credential": {
+                    "password": "NEW_PASSWORD",
+                    "resetToken": "pcnO29"
+                }
+            }
+        }
+
++ Response 200 (application/json)
+
+        {
+            "id": "1a57f146:14e3e052720:-5466",
+            "result": {
+                "success": true,
+                "status": 200,
+                "metadata": null,
+                "content": {
+                    "id": "40136023",
+                    "handle": "kohatatest76",
+                    "email": "ykohata+kohatatest76@appirio.com",
+                    "firstName": "",
+                    "lastName": "",
+                    "credential": {
+                        "id": null,
+                        "modifiedBy": null,
+                        "modifiedAt": null,
+                        "createdBy": null,
+                        "createdAt": null,
+                        "activationCode": "13IOU3M4CKM",
+                        "resetToken": null
+                    },
+                    "profile": null,
+                    "country": null,
+                    "utmSource": null,
+                    "utmMedium": null,
+                    "utmCampaign": null,
+                    "active": true,
+                    "modifiedBy": null,
+                    "modifiedAt": null,
+                    "createdBy": null,
+                    "createdAt": null
+                }
+            },
+            "version": "v3"
+        }
+
++ Response 400 (application/json)
+
+    Error:
+    + resetToken - should be specified.
+    + resetToken is expired - Expairy time: 30 mins.
+    + resetToken does not match the one stored in the user data.
+
+    + Attributes (BadRequestResponse)
+
++ Response 404 (application/json)
+
+    Error: User does not exists, which is specified by handle or email.
+
+    + Attributes (NotFoundResponse)
+
+### Validate Handle [GET /users/validateHandle?handle={handle}]
+
+Validate the handle whether it can be available and valid for a user to register.<br/>
+
++ Parameters
+    + handle: `johndoe` (string, requred) - handle to be validated
+
++ Response 200 (application/json)
+
+    <table>
+    <tr>
+    <th>reasonCode</th>
+    <th>reason</th>
+    </tr>
+    <tr>
+    <td>INVALID_LENGTH</td>
+    <td>Length of Handle in character should be between 2 and 15</td>
+    </tr>
+    <tr>
+    <td>INVALID_FORMAT</td>
+    <td>Handle can not contain a space.<br/>
+        Handle can contain only letters, numbers and punctuations(-_.{}[]).<br/>
+        Handle can not consists of only punctuations.<br/>
+    </td>
+    </tr>
+    <tr>
+    <td>INVALID_HANDLE</td>
+    <td>Handle is registered in the black list.<br>
+        Handle can not start with "admin".</td>
+    </tr>
+    <tr>
+    <td>ALREADY_TAKEN</td>
+    <td>Handle has already been taken.</td>
+    </tr>
+    </table>
+
+    + Attributes (ValidationResponse)
+
++ Response 400 (application/json)
+
+    Error:
+    + handle - should be specified.
+
+    + Attributes (BadRequestResponse)
+    
+### Validate Email [GET /users/validateEmail?email={email}]
+
+Validate the email whether it can be available and valid for a user to register.
+
++ Parameters
+    + email: `johndoe@appirio.com` (string, requred) - email to be validated
+
++ Response 200 (application/json)
+
+    <table>
+    <tr>
+    <th>reasonCode</th>
+    <th>reason</th>
+    </tr>
+    <tr>
+    <td>INVALID_LENGTH</td>
+    <td>Length of Email address in character should be equal or less than 100</td>
+    </tr>
+    <tr>
+    <td>INVALID_EMAIL</td>
+    <td>Email address should be a valid email address.</td>
+    </tr>
+    <tr>
+    <td>ALREADY_TAKEN</td>
+    <td>Email address has already been taken.</td>
+    </tr>
+    </table>
+    
+    + Attributes (ValidationResponse)
+
++ Response 400 (application/json)
+
+    Error:
+    + email - should be valid and not duplicated.
+
+    + Attributes (BadRequestResponse)
+
+### Validate Social Account [GET /users/validateSocial?socialUserId={socialUserId}&socialProvider={socialProvider}]
+
+Validate the social account represented by Social user ID and Social provider whether it can be available and valid for a user to register.
+
++ Parameters
+    + socialUserId: `100001034949536` (string, requred) - User ID in the social account.
+    + socialProvider: `facebook` (string, requred) - Social provider. (facebook|google|twitter|github)
+
++ Response 200 (application/json)
+
+    <table>
+    <tr>
+    <th>reasonCode</th>
+    <th>reason</th>
+    </tr>
+    <tr>
+    <td>ALREADY_IN_USE</td>
+    <td>Social account has already been in use.</td>
+    </tr>
+    </table>
+    
+    + Attributes (ValidationResponse)
+
++ Response 400 (application/json)
+
+    Error:
+    + socialProvider - should be specified and a supported provider.
+    + socialUserId - should be specified.
+
+    + Attributes (BadRequestResponse)
+
+
+
+## Roles [/roles]
+
+### Fetch All Roles [GET /roles]
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7f61",
+            "result":{  
+                "success":true,
+                "status":200,
+                "metadata":null,
+                "content":[  
+                    {  
+                        "id":"1",
+                        "modifiedBy":null,
+                        "modifiedAt":null,
+                        "createdBy":null,
+                        "createdAt":null,
+                        "roleName":"administrator",
+                        "subjects":null,
+                        "permissions":null
+                    },
+                    {  
+                        "id":"2",
+                        "modifiedBy":null,
+                        "modifiedAt":null,
+                        "createdBy":null,
+                        "createdAt":null,
+                        "roleName":"testRole",
+                        "subjects":null,
+                        "permissions":null
+                    }
+                ]
+            },
+            "version":"v3"
+        }
+
++ Response 404 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7f06",
+            "result":{  
+                "success":true,
+                "status":404,
+                "metadata":null,
+                "content":null
+            },
+            "version":"v3"
+        }
+
+### Create New Role [POST /roles]
+
++ Request (application/json)
+
+        {
+            "param": {
+                "roleName":"testRole"
+            }
+        }
+        
++ Response 200 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7fea",
+            "result":{  
+                "success":true,
+                "status":200,
+                "metadata":null,
+                "content":{  
+                    "id":"1",
+                    "modifiedBy":null,
+                    "modifiedAt":null,
+                    "createdBy":null,
+                    "createdAt":null,
+                    "roleName":"testRole",
+                    "subjects":null,
+                    "permissions":null
+                }
+            },
+            "version":"v3"
+        }
+
+### Fetch Particular Role [GET /roles/{roleId}]
+
++ Request (application/json)
+
++ Parameters
+    + roleId: `1` (string, required)
+    
++ Response 200 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7f0b",
+            "result":{  
+                "success":true,
+                "status":200,
+                "metadata":null,
+                "content":{  
+                    "id":"1",
+                    "modifiedBy":null,
+                    "modifiedAt":null,
+                    "createdBy":null,
+                    "createdAt":null,
+                    "roleName":"testRole",
+                    "subjects":null,
+                    "permissions":null
+                }
+            },
+            "version":"v3"
+        }
+
++ Response 404 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7f06",
+            "result":{  
+                "success":true,
+                "status":404,
+                "metadata":null,
+                "content":null
+            },
+            "version":"v3"
+        }
+
+### Delete Role [DELETE /roles/{roleId}]
+
++ Request (application/json)
+
++ Parameters
+    + roleId: `1` (string, required)
+    
++ Response 200 (application/json)
+
+        {
+            "id":"-78da8db2:14e4a4a8414:-7fee",
+            "result": {
+                "success":true,
+                "status":200,
+                "metadata":null,
+                "content":"1"
+            },
+            "version":"v3"
+        }
+
++ Response 401 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7f6d",
+            "result":{  
+                "success":true,
+                "status":401,
+                "metadata":null,
+                "content":null
+            },
+            "version":"v3"
+        }
+        
+### Fetch All Subjects With Given Role [GET /roles/{roleId}/subjects]
+
++ Request (application/json)
+
++ Parameters
+    + roleId: `1` (string, required)
+
++ Response 200 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7f43",
+            "result":{  
+                "success":true,
+                "status":200,
+                "metadata":null,
+                "content":{  
+                    "id":"1",
+                    "modifiedBy":null,
+                    "modifiedAt":null,
+                    "createdBy":null,
+                    "createdAt":null,
+                    "roleName":null,
+                    "subjects":[  
+                        "1"
+                    ],
+                    "permissions":null
+                }
+            },
+            "version":"v3"
+        }
+        
++ Response 404 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7f39",
+            "result":{  
+                "success":true,
+                "status":404,
+                "metadata":null,
+                "content":null
+            },
+            "version":"v3"
+        }
+        
+### Assign Role to Subject [POST /roles/{roleId}/assign?action=true&filter=]
+
++ Request (application/json)
+
++ Parameters
+    + roleId: `1` (string, required)
+    + filter: subjectID%3D1
+    
++ Response 200 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7f78",
+            "result":{  
+                "success":true,
+                "status":200,
+                "metadata":null,
+                "content":"1"
+            },
+            "version":"v3"
+        }
+        
++ Response 401 (application/json)
+    
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7f33",
+            "result":{  
+                "success":true,
+                "status":401,
+                "metadata":null,
+                "content":null
+            },
+            "version":"v3"
+        }
+
+### De-Assign Role from Subject [DELETE /roles/{roleId}/deassign?action=true&filter=]
+
++ Request (application/json)
+
++ Parameters
+    + roleId: `1` (string, required)
+    + filter: subjectID%3D1
+    
++ Response 200 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7f74",
+            "result":{  
+                "success":true,
+                "status":200,
+                "metadata":null,
+                "content":"1"
+            },
+            "version":"v3"
+        }
+        
++ Response 401 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7f76",
+            "result":{  
+                "success":true,
+                "status":401,
+                "metadata":null,
+                "content":null
+            },
+            "version":"v3"
+        }
+
+### Fetch All Permissions Associated With Role [GET /roles/{roleId}/permissions]
+
++ Request (application/json)
+
++ Parameters
+    + roleId: `1` (string, required)
+
++ Response 200 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7f53",
+            "result":{  
+                "success":true,
+                "status":200,
+                "metadata":null,
+                "content":{  
+                    "id":"1",
+                    "modifiedBy":null,
+                    "modifiedAt":null,
+                    "createdBy":null,
+                    "createdAt":null,
+                    "roleName":null,
+                    "subjects":null,
+                    "permissions":[  
+                        "1"
+                    ]
+                }
+            },
+            "version":"v3"
+        }
+
++ Response 404 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7f67",
+            "result":{  
+                "success":true,
+                "status":404,
+                "metadata":null,
+                "content":null
+            },
+            "version":"v3"
+        }
+
+### Check Whether a Subject has a particular Role [GET /roles/{roleId}/hasrole?action=true&filter]
+
++ Request (application/json)
+
++ Parameters
+    + roleId: `1` (string, required)
+    + filter: subjectID%3D1
+    
++ Response 200 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7f22",
+            "result":{  
+                "success":true,
+                "status":200,
+                "metadata":null,
+                "content":{  
+                    "id":"1",
+                    "modifiedBy":null,
+                    "modifiedAt":null,
+                    "createdBy":null,
+                    "createdAt":null,
+                    "roleName":null,
+                    "subjects":null,
+                    "permissions":null
+                }
+            },
+            "version":"v3"
+        }
+        
++ Response 404 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7f18",
+            "result":{  
+                "success":true,
+                "status":404,
+                "metadata":null,
+                "content":null
+            },
+            "version":"v3"
+        }
+
+## Permissions [/permissions]
+
+### Fetch All Permissions [GET /permissions]
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7fc7",
+            "result":{  
+                "success":true,
+                "status":200,
+                "metadata":null,
+                "content":[  
+                    {  
+                        "id":"1",
+                        "modifiedBy":null,
+                        "modifiedAt":null,
+                        "createdBy":null,
+                        "createdAt":null,
+                        "permission":"test:t1:view",
+                        "roles":null
+                    }
+                ]
+            },
+            "version":"v3"
+        }
+        
++ Response 404 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7fca",
+            "result": {  
+                "success":true,
+                "status":404,
+                "metadata":null,
+                "content":null
+            },
+            "version":"v3"
+        }
+
+### Create New Permission [POST /permissions]
+
++ Request (application/json)
+
+        {
+            "param": {
+                "permission":"test:t1:view"
+            }
+        }
+        
++ Response 200 (application/json)
+
+        {
+            "id":"-78da8db2:14e4a4a8414:-7ff2",
+            "result": {
+                "success":true,
+                "status":200,
+                "metadata":null,
+                "content": {
+                    "id":"1",
+                    "modifiedBy":null,
+                    "modifiedAt":null,
+                    "createdBy":null,
+                    "createdAt":null,
+                    "permission":"test:t1:view",
+                    "roles":null
+                }
+            },
+            "version":"v3"
+        }
+
+### Fetch Particular Permission [GET /permissions/{permissionId}]
+
++ Request (application/json)
+
++ Parameters
+    + permissionId: '1' (string, required)
+
++ Response 200 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7f81",
+            "result": {  
+                "success":true,
+                "status":200,
+                "metadata":null,
+                "content":{  
+                    "id":"1",
+                    "modifiedBy":null,
+                    "modifiedAt":null,
+                    "createdBy":null,
+                    "createdAt":null,
+                    "permission":"test:t1:view",
+                    "roles":null
+                }
+            },
+            "version":"v3"
+        }
+        
++ Response 404 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7f7c",
+            "result": {  
+                "success":true,
+                "status":404,
+                "metadata":null,
+                "content":null
+            },
+            "version":"v3"
+        }
+
+### Delete Permission [DELETE /permissions/{permissionId}]
+
++ Request (application/json)
+
++ Parameters
+    + permissionId: `1` (string, required)
+    
++ Response 200 (application/json)
+
+        {
+            "id":"-78da8db2:14e4a4a8414:-7fee",
+            "result": {
+                "success":true,
+                "status":200,
+                "metadata":null,
+                "content":"1"
+            },
+            "version":"v3"
+        }
+
+### Grant Permission to Role [POST /permissions/{permissionId}/grant?action=true&filter=]
+
++ Request (application/json)
+
++ Parameters
+    + permissionId: `1` (string, required)
+    + action: true
+    + filter: roleID%3D1 (roleId for which permission to be granted)
+    
++ Response 200 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7fdd",
+            "result": {  
+                "success":true,
+                "status":200,
+                "metadata":null,
+                "content": {  
+                    "id":"1",
+                    "modifiedBy":null,
+                    "modifiedAt":null,
+                    "createdBy":null,
+                    "createdAt":null,
+                    "permission":null,
+                    "roles":null
+                }
+            },
+            "version":"v3"
+        }
+        
++ Response 401 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7fe8",
+            "result":{  
+                "success":true,
+                "status":401,
+                "metadata":null,
+                "content":null
+            },
+            "version":"v3"
+        }
+
+### Revoke Permission from Role [DELETE /permissions/{permissionId}/revoke?action=true&filter]
+
++ Request (application/json)
+
++ Parameters
+    + permissionId: `1` (string, required)
+    + action: true
+    + filter: roleID%3D1 (roleId for which permission to be granted)
+
++ Response 200 (application/json)
+
+        {
+            "id":"-78da8db2:14e4a4a8414:-7fd8",
+            "result": {
+                "success":true,
+                "status":200,
+                "metadata":null,
+                "content":"1"
+            },
+            "version":"v3"
+        }
+        
++ Response 401 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7fe8",
+            "result":{  
+                "success":true,
+                "status":401,
+                "metadata":null,
+                "content":null
+            },
+            "version":"v3"
+        }
+    
+### Fetch All Roles Associated With Permission [GET /permissions/{permissionId}/roles]
+
++ Request (application/json)
+
++ Parameters
+    + permissionId: `1` (string, required)
+    
++ Response 200 (application/json)
+        
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7fdb",
+            "result": {  
+                "success":true,
+                "status":200,
+                "metadata":null,
+                "content": {  
+                    "id":"1",
+                    "modifiedBy":null,
+                    "modifiedAt":null,
+                    "createdBy":null,
+                    "createdAt":null,
+                    "permission":null,
+                    "roles":[  
+                        "1"
+                    ]
+                }
+            },
+            "version":"v3"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "id":"-78da8db2:14e4a4a8414:-7ff0",
+            "result": {
+                "success":true,
+                "status":404,
+                "metadata":null,
+                "content":null
+            },
+            "version":"v3"
+        }
+
+
+### Check Whether a Subject has a particular Permission [GET /permissions/{permissionId}/ispermitted?action=true&filter=]
+
++ Request (application/json)
+
++ Parameters
+    + permissionId: `1` (string, required)
+    + action: true
+    + filter: subjectID%3D1
+
++ Response 200 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7f91",
+            "result": {  
+                "success":true,
+                "status":200,
+                "metadata":null,
+                "content": {  
+                    "id":"1",
+                    "modifiedBy":null,
+                    "modifiedAt":null,
+                    "createdBy":null,
+                    "createdAt":null,
+                    "permission":null,
+                    "roles":null
+                }
+            },
+            "version":"v3"
+        }
+
++ Response 404 (application/json)
+
+        {  
+            "id":"-78da8db2:14e4a4a8414:-7fad",
+            "result": {  
+                "success":true,
+                "status":404,
+                "metadata":null,
+                "content":null
+            },
+            "version":"v3"
+        }
+
+
+# Data Structures
+
+## Authorization (object)
+
++ token (string) - JWT token
++ target: 1 (string) - Id of the target system. "1" is the only option supported now.
++ refreshToken (string) - Refresh token to extend life of JWT token. Currently this is used to hold a refresh token issued by Auth0.
++ externalToken (string) - JWT token issued by Auth0, which is used to generate value for the `token`.
+
+## AuthorizationRequest (object)
+
++ param (Authorization)
+
+## AuthorizationReponse (object)
+
++ id: `1a57f146:14e3e052720:-2ca7` (string)
++ result (AuthorizationResult)
++ version: `v3` (string)
+
+## AuthorizationResult (object)
+
++ success: `true` (boolean)
++ status: `200` (number)
++ metadata (object)
++ content (Authorization)
+
+## Validation (object)
+
++ valid: `false` (boolean) - tells result of validation.
++ reason: `Handle is invalid` (string) - Reason of result.
++ reasonCode: `INVALID_HANDLE` (string) - Code of reason
+
+## ValidationResponse (object)
+
++ id: `1a57f146:14e3e052720:-2ca7` (string)
++ result (ValidationResult)
++ version: `v3` (string)
+
+## ValidationResult (object)
+
++ success: `true` (boolean)
++ status: `200` (number)
++ metadata (object)
++ content  (Validation)
+
+## OKResponse (object)
+
++ id: `1a57f146:14e3e052720:-2ca7` (string)
++ result (OKResult)
++ version: `v3` (string)
+
+## OKResult (object)
+
++ success: `true` (boolean)
++ status: `200` (number)
++ content  (object)
++ metadata (object)
+
+
+## BadRequestResponse (object)
+
++ id: `1a57f146:14e3e052720:-2ca7` (string)
++ result (BadRequestResult)
++ version: `v3` (string)
+
+## BadRequestResult (object)
+
++ success: `true` (boolean)
++ status: `400` (number)
++ content: `Bad Request` (string)
++ metadata (object)
+
+
+## UnauthorizedResponse (object)
+
++ id: `1a57f146:14e3e052720:-2ca7` (string)
++ result (UnauthorizedResult)
++ version: `v3` (string)
+
+## UnauthorizedResult (object)
+
++ success: `true` (boolean)
++ status: `401` (number)
++ content: `Unauthorized` (string)
++ metadata (object)
+
+## ForbiddenResponse (object)
+
++ id: `1a57f146:14e3e052720:-2ca7` (string)
++ result (ForbiddenResult)
++ version: `v3` (string)
+
+## ForbiddenResult (object)
+
++ success: `true` (boolean)
++ status: `403` (number)
++ content: `Forbidden` (string)
++ metadata (object)
+
+## NotFoundResponse (object)
+
++ id: `1a57f146:14e3e052720:-2ca7` (string)
++ result (NotFoundResult)
++ version: `v3` (string)
+
+## NotFoundResult (object)
+
++ success: `true` (boolean)
++ status: `404` (number)
++ content: `Not Found` (string)
++ metadata (object)

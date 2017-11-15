@@ -1,0 +1,163 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>appirio.platform.integration.tests</groupId>
+  <artifactId>core.service</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  
+  <name>Core Service Integration Tests</name>
+	<url>http://maven.apache.org</url>
+    <properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	
+  <dependencies>
+  <dependency>
+    <groupId>com.appirio.automation.api</groupId>
+	<artifactId>automation-api</artifactId>
+	<version>0.0.1</version>
+  </dependency>
+
+	<dependency>
+			<groupId>commons-configuration</groupId>
+			<artifactId>commons-configuration</artifactId>
+			<version>1.9</version>
+		</dependency>
+  <dependency>
+	<groupId>org.json</groupId>
+	<artifactId>json</artifactId>
+	<version>20140107</version>
+	</dependency>
+
+	<dependency>
+	<groupId>org.apache.httpcomponents</groupId>
+	<artifactId>httpclient</artifactId>
+	<version>4.5</version>
+	</dependency>
+
+	  <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>6.8.21</version>
+    </dependency>
+    <dependency>
+		<groupId>log4j</groupId>
+		<artifactId>log4j</artifactId>
+		<version>1.2.17</version>
+	</dependency>
+	<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+    <version>2.2.3</version>
+</dependency>
+  </dependencies>
+  <distributionManagement>
+        <!-- for deployment on the build server -->
+        <repository>
+            <id>appirio-repo</id>
+            <name>Appirio Maven Repository</name>
+            <url>file:///mnt/maven/repository</url>
+        </repository>
+        <snapshotRepository>
+            <id>appirio-repo</id>
+            <name>Appirio Maven Repository</name>
+            <url>file:///mnt/maven/repository</url>
+        </snapshotRepository>
+    </distributionManagement>
+     <repositories>
+ <repository>
+            <id>Appirio Technology Maven Repository</id>
+            <url>http://maven.appirio.net:8080/</url>
+            <snapshots>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+            <releases>
+                <updatePolicy>always</updatePolicy>
+            </releases>
+        </repository>
+    </repositories>
+  <build>
+  <!--   <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>true</filtering>
+      </testResource>
+    </testResources>
+
+  -->
+
+
+    <plugins>
+    <!-- 
+      <plugin>
+            <groupId>org.testng.xslt</groupId>
+            <artifactId>testng-xslt-plugin</artifactId>
+            <version>1.1</version>
+            <configuration>
+                <showRuntimeTotals>true</showRuntimeTotals>
+                <sortTestCaseLinks>true</sortTestCaseLinks>
+                <testDetailsFilter>FAIL,PASS,SKIP,CONF</testDetailsFilter>
+            </configuration>
+        </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.7</version>
+         <configuration>
+         <systemPropertyVariables>
+                <java.awt.headless>true</java.awt.headless>
+            </systemPropertyVariables>
+          <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin> 
+       -->
+ <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.18.1</version>
+        <configuration>
+       
+          <suiteXmlFiles>
+            <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+          </suiteXmlFiles>
+          
+        </configuration>
+      </plugin>
+      <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+			
+     	<plugin>
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>replacer</artifactId>
+        <version>1.5.3</version>
+        <executions>
+          <execution>
+            <phase>generate-test-sources</phase>
+              <goals>
+                <goal>replace</goal>
+              </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <includes>
+            <include>${basedir}/target/**/*.properties</include>
+          </includes>
+          <tokenValueMap>${basedir}/token.properties</tokenValueMap>
+        </configuration>
+      </plugin>
+     
+    </plugins>
+   
+  </build>
+</project>

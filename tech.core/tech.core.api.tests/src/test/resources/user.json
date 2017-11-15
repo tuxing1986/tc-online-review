@@ -1,0 +1,169 @@
+{
+	"userCreate" :[
+		{"param" : {
+			"email" : "auto.usera10@gmail.com",
+			"firstName" : "Test1",
+			"lastName" : "User1",
+			"handle" : "H",
+			"credential" : {
+				"password" : "appirio123$"
+			}
+		}
+	},
+	{"param" : {
+						"email" : "automateuser12@gmail.com",
+						"firstName" : "Test2",
+						"lastName" : "User2",
+						"handle" : "H",
+						"credential" : {
+							"password" : "appirio123$"
+						}
+					}
+			}
+	],
+	"activateUser" : {
+        "filter": {
+            "filterCriteria": [
+                {
+                    "name": "code",
+                    "value": "@activationCode",
+                    "type": "AND"
+                }
+            ]
+        }
+    },
+	"userResetPwd" :
+			{"param" : {
+				"credential" : {
+					"password" : "appirio1234$"
+				}
+			}
+		}
+	,
+	"userInvalidEmail" :[
+			{"param" : {
+				"email" : "automateuser12",
+				"handle" : "H",
+				"credential" : {
+					"password" : "appirio123$"
+				}
+			}
+			}
+	],
+	"userInvalidPassword":[
+			{"param" : {
+						"email" : "automateuser12@gmail.com",
+						"handle" : "H",
+						"credential" : {
+							"password" : "p"
+						}
+					}
+			}
+	],
+	"userInvalidHandle":[
+			{"param" : {
+						"email" : "auto.usera10@gmail.com",
+						"handle" : "",
+						"credential" : {
+							"password" : "appirio123$"
+						}
+					}
+			}
+	],
+	"userHandleInvalidLenght":
+	{"param" : {
+				 "handle" : "a"
+			   }
+	},
+	"userHandleInvalidFormat":
+	{"param" : {
+				 "handle" : "$$"
+			   }
+	},
+	"userHandleInvalidHandle":
+	{"param" : {
+				 "handle" : "admin123"
+			   }
+	},
+	"userHandleAlreadyTaken":
+	{"param" : {
+				 "handle" : "scud"
+			   }
+	},
+	"userHandleValid":[
+			
+			{"param" : {
+						 "handle" : "1122333H"
+					   }
+			},
+			
+			{"param" : {
+						 "handle" : "wwwwww[]"
+					   }
+			}
+	],
+	"validateEmailInvalidLength":
+	{"param" : {
+						 "email" : "auto.usera1ghfghfhghghghfhfghfhhhhhhhhhtt55455454554545454545454545454534545454353454353453453450@gmail.com"
+			   }
+	},
+	"validateEmailInvalidEmail":
+	{"param" : {
+						 "email" : "a@1"
+					   }
+	},
+	"validateEmailAlreadyTaken":
+	{"param" : {
+						 "email" : "munmun.mathur@appirio.com"
+					   }
+	},
+	"validateEmailAvailableEmail":
+	{"param" : {
+						 "email" : "auto.usera101@gmail.com"
+					   }
+	},
+	
+	"userSocialAccountAlreadyTaken":
+			{"param" : {
+						 "socialUserId"   : "100907422017802978006",
+						 "socialProvider" : "google-oauth2"
+					   }
+			}
+	,
+	"userSocialAccountAvailable":[
+			{"param" : {
+						 "socialUserId"   : "1463283060641769",
+						 "socialProvider" : "facebook"
+					   }
+			},
+			{"param" : {
+						 "socialUserId"   : "296573473222",
+						 "socialProvider" : "twitter"
+					   }
+			}
+	],
+	"userCreateSocialAccount":[
+			{
+			  "param": {
+			    "handle": "H",
+			    "firstName": "Auto16",
+			    "lastName": "User16",
+			    "email": "auto.usera16@gmail.com",
+			    "country": {
+			      "name": "United States"
+			    },
+			    "profile": {
+			      "userId": "",
+			      "name": "Auto16 User16",
+			      "email": "auto.usera16@gmail.com",
+			      "emailVerified": "true",
+			      "providerType": "google-oauth2"
+			    },
+			    "regSource": "REG_SOURCE",
+			    "utmSource": "UTM_SOURCE",
+			    "utmMedium": "UTM_MEDIUM",
+			    "utmCampaign": "UTM_CAMPAIGN"
+			  }
+			}
+	]
+}

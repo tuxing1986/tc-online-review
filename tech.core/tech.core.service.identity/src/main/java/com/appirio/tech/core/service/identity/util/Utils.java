@@ -1,200 +1,182 @@
+/**
+ * Copyright (C) 2017 Topcoder Inc., All Rights Reserved.
+ */
 package com.appirio.tech.core.service.identity.util;
 
-import static com.appirio.tech.core.service.identity.util.Constants.ALPHABET_WHITESPACE_EN;
-import static com.appirio.tech.core.service.identity.util.Constants.EMAIL_PATTERN;
-import static com.appirio.tech.core.service.identity.util.Constants.HANDLE_ALPHABET;
-import static com.appirio.tech.core.service.identity.util.Constants.HANDLE_PUNCTUATION;
-import static com.appirio.tech.core.service.identity.util.Constants.LOWER_CASE_PATTERN;
-import static com.appirio.tech.core.service.identity.util.Constants.MAX_LENGTH_EMAIL;
-import static com.appirio.tech.core.service.identity.util.Constants.MAX_LENGTH_HANDLE;
-import static com.appirio.tech.core.service.identity.util.Constants.MAX_LENGTH_PASSWORD;
-import static com.appirio.tech.core.service.identity.util.Constants.MIN_LENGTH_HANDLE;
-import static com.appirio.tech.core.service.identity.util.Constants.MIN_LENGTH_PASSWORD;
-import static com.appirio.tech.core.service.identity.util.Constants.NUMBER_PATTERN;
-import static com.appirio.tech.core.service.identity.util.Constants.SYMBOL_PATTERN;
-import static com.appirio.tech.core.service.identity.util.Constants.UPPER_CASE_PATTERN;
+import static com.appirio.tech.core.service.identity.util.Constants.*;
+import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 
+import java.math.BigInteger;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.HttpHeaders;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.appirio.tech.core.api.v3.TCID;
 import com.appirio.tech.core.api.v3.exception.APIRuntimeException;
-import com.topcoder.security.GeneralSecurityException;
-import com.topcoder.security.Util;
+import com.appirio.tech.core.api.v3.util.jwt.JWTToken;
+import com.appirio.tech.core.auth.AuthUser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * Utils.
+ * 
+ * <p>
+ * Version 1.1 - GROUP AND MEMBERSHIP MANAGEMENT API
+ * - Added checkStringLength method
+ * </p>
+ *
+ * @author TCSCODER
+ * @version 1.1
+ */
 public class Utils {
 	
-	static final Logger logger = Logger.getLogger(Utils.class);
+	private static final Logger logger = Logger.getLogger(Utils.class);
 
-	public static String encodePassword(String password, String alias) {
+	public static final String CONTEXT_KEY_DEFAULT_PASSWORD = "defaultPassword";
+	public static final String CONTEXT_KEY_PASSWORD_HASH = "passwordHashKey";
+
+	private static final Map<String, Object> applicationContext = new LinkedHashMap<String, Object>();
+	
+	public static void setApplicationContext(Map<String, Object> context) {
+		applicationContext.clear();
+		applicationContext.putAll(context);
+	}
+	
+	public static Object getContext(String key) {
+		return applicationContext.get(key);
+	}
+	
+	public static String getString(String key) {
+		Object val = getContext(key);
+		return val!=null ? String.valueOf(val) : null;
+	}
+
+	public static String getString(String key, String defaultVal) {
+		String val = getString(key);
+		return val!=null ? val : defaultVal;
+	}
+	
+	public static Integer getInteger(String key) {
+		Object val = getContext(key);
+		if(val==null)
+			return null;
+		if(val instanceof Integer)
+			return (Integer) val;
+		return Integer.valueOf(String.valueOf(val));
+	}
+
+	public static Integer getInteger(String key, int defaultVal) {
+		Integer val = getInteger(key);
+		return val!=null ? val : defaultVal;
+	}
+
+	public static String getEncodedDefaultPassword() {
+		return encodePassword(getString(CONTEXT_KEY_DEFAULT_PASSWORD));
+	}
+	
+	/**
+	 * Encrypt the password using the key configured in the application.
+	 */
+	public static String encodePassword(String password) {
+		return encodePassword(password, getString(CONTEXT_KEY_PASSWORD_HASH, "default"));
+	}
+	
+	/**
+	 * Encrypt the password using the specified key. After being
+	 * encrypted with a Blowfish key, the encrypted byte array is
+	 * then encoded with a base 64 encoding, resulting in the String
+	 * that is returned.
+	 *
+	 * @param password The password to encrypt.
+	 * @param key The base 64 encoded Blowfish key.
+	 * @return the encrypted and encoded password
+	 */
+	public static String encodePassword(String password, String key) {
+		if(password==null)
+			throw new IllegalArgumentException("password must be specified.");
+		if(key==null)
+			throw new IllegalArgumentException("key must be specified.");
 		try {
-			return Util.encodePassword(password, alias);
-		} catch (GeneralSecurityException e) {
-			throw new RuntimeException(e.getMessage(), e); //TODO:
+			SecretKeySpec sksSpec = new SecretKeySpec(Base64.decodeBase64(key), "Blowfish");
+			Cipher cipher = Cipher.getInstance("Blowfish");
+			cipher.init(Cipher.ENCRYPT_MODE, sksSpec);
+			byte[] encrypted = cipher.doFinal(password.getBytes("UTF-8"));
+			return Base64.encodeBase64String(encrypted);
+		} catch (Exception e) {
+			logger.error(String.format("Failed to encode password. (password=%s, key=%s) error: %s", password, key, e.getLocalizedMessage()), e);
+			throw new RuntimeException("Failed to encode password. "+e.getLocalizedMessage(), e);
 		}
 	}
 	
-	public static String decodePassword(String password, String alias) {
+	/**
+	 * Decrypt the password using the key configured in the application.
+	 *
+	 * @param password base64 encoded string.
+	 * @return the decypted password
+	 */
+	public static String decodePassword(String encodedPassword) {
+		return decodePassword(encodedPassword, getString(CONTEXT_KEY_PASSWORD_HASH, "default"));
+	}
+	
+	/**
+	 * Decrypt the password using the specified key. Takes a password
+	 * that has been ecrypted and encoded, uses base 64 decoding and
+	 * Blowfish decryption to return the original string.
+	 *
+	 * @param password base64 encoded string.
+	 * @param key The base 64 encoded Blowfish key.
+	 * @return the decypted password
+	 */
+	public static String decodePassword(String encodedPassword, String key) {
 		try {
-			return Util.decodePassword(password, alias);
-		} catch (GeneralSecurityException e) {
-			throw new RuntimeException(e.getMessage(), e); //TODO:
+			SecretKeySpec sksSpec = new SecretKeySpec(Base64.decodeBase64(key), "Blowfish");
+			Cipher cipher = Cipher.getInstance("Blowfish");
+			cipher.init(Cipher.DECRYPT_MODE, sksSpec);
+			byte[] decrypted = cipher.doFinal(Base64.decodeBase64(encodedPassword));
+			return new String(decrypted, "UTF-8");
+		} catch (Exception e) {
+			logger.error(String.format("Failed to decode password. (encoded=%s, key=%s) error: %s", encodedPassword, key, e.getLocalizedMessage()), e);
+			throw new RuntimeException("Failed to decode password. "+e.getLocalizedMessage(), e);
 		}
 	}
+  
 
-
-	public static String validateHandle(String handle)  {
-
-		final int handleLen = handle.length();
-        if (handleLen > MAX_LENGTH_HANDLE || handleLen < MIN_LENGTH_HANDLE) {
-            return "Length of handle in character should be between " + MIN_LENGTH_HANDLE
-                + " and" + MAX_LENGTH_HANDLE;
-        }
-		if (handle.contains(" ")) {
-			return "Handle may not contain a space";
+	/**
+	 * This is used to generate reset token.
+	 * @param charSpace
+	 * @param length
+	 * @return
+	 */
+	public static final String generateRandomString(String charSpace, int length) {
+		if(charSpace==null)
+			throw new IllegalArgumentException("charSpace must be specified.");
+		if(length<=0)
+			throw new IllegalArgumentException("length must be positive.");
+		
+		StringBuffer token = new StringBuffer();
+		Random random = new Random(new Date().getTime());
+		for (int i = 0; i < length; i++) {
+			token.append(charSpace.charAt(random.nextInt(charSpace.length())));
 		}
-		if (!containsOnly(handle, HANDLE_ALPHABET, false)) {
-			return "The handle may contain only letters, numbers and " + HANDLE_PUNCTUATION;
-		}
-		if (containsOnly(handle, HANDLE_PUNCTUATION, false)) {
-			return "The handle may not contain only punctuation.";
-		}
-		if (handle.toLowerCase().trim().startsWith("admin")) {
-			return "Please choose another handle, not starting with admin.";
-		}
-		if (checkInvalidHandle(handle)) {
-			return "The handle you entered is not valid.";
-		}
-		return null;
+		return token.toString();
 	}
 	
-    public static String validateEmail(String email) {
-        
-        if (email.length() > MAX_LENGTH_EMAIL) {
-            return "Maxiumum lenght of email address is " + MAX_LENGTH_EMAIL;
-        }
-        Matcher matcher = EMAIL_PATTERN.matcher(email);
-        if (!matcher.matches()) {
-            return "Email address is invalid";
-        }
-        return null;
-    }
-	
-    public static String validatePassword(String password){
-    	if (password==null || password.length()==0)
-            return "Password is required";
-        
-        final int passwordLen = password.length();
-        if (passwordLen > MAX_LENGTH_PASSWORD || passwordLen < MIN_LENGTH_PASSWORD)
-            return "Length of password should be between " + MIN_LENGTH_PASSWORD + " and " + MAX_LENGTH_PASSWORD;
-
-        // length OK, check password strength.
-        int strength = calculatePasswordStrength(password);
-        switch (strength) {
-        case 0:
-        case 1:
-        case 2:
-        	return "Password is too weak";
-        default:
-            break;
-        }
-        return null;
-    }
-    
-    public static int calculatePasswordStrength(String password) {
-        int result = 0;
-        password = password.trim();
-
-        // Check if it has lower case characters.
-        Matcher matcher = LOWER_CASE_PATTERN.matcher(password);
-        if (matcher.find()) {
-            result++;
-        }
-
-        // Check if it has upper case character.
-        matcher = UPPER_CASE_PATTERN.matcher(password);
-        if (matcher.find()) {
-            result++;
-        }
-
-        // Check if it has punctuation symbol
-        matcher = SYMBOL_PATTERN.matcher(password);
-        if (matcher.find()) {
-            result++;
-        }
-
-        // Check if it has number.
-        matcher = NUMBER_PATTERN.matcher(password);
-        if (matcher.find()) {
-            result++;
-        }
-        return result;
-    }
-    
-    private static final Pattern[] INVALID_HANDLE_PATTERNS = new Pattern[] {Pattern.compile("(.*?)es"),
-        Pattern.compile("(.*?)s"), Pattern.compile("_*(.*?)_*")};
-    
-    private static boolean checkInvalidHandle(String handle) {
-        if (checkExactMatch(handle)) {
-            return true;
-        }
-        // check each pattern rule
-        for (int i = 0; i < INVALID_HANDLE_PATTERNS.length; i++) {
-            if (checkAgainstPattern(handle, INVALID_HANDLE_PATTERNS[i])) {
-                return true;
-            }
-        }
-        // check invalid word after removing some leading/trailing numbers
-        return checkLeadingTrailingNumbers(handle);
-    }
-    
-    private static boolean checkAgainstPattern(String handle, Pattern pattern) {
-        Matcher matcher = pattern.matcher(handle);
-        if (matcher.matches()) {
-            String extractedHandle = matcher.group(1);
-            if (!extractedHandle.equals(handle) && extractedHandle.length() > 0) {
-                return checkExactMatch(extractedHandle);
-            }
-        }
-        return false;
-    }
-
-	
-    private static boolean checkLeadingTrailingNumbers(String handle) {
-        int head = 0;
-        // find heading and trailing digits count
-        while (head < handle.length() && Character.isDigit(handle.charAt(head))) {
-            head++;
-        }
-        if (head >= handle.length()) {
-            head = handle.length() - 1;
-        }
-        int tail = handle.length() - 1;
-        while (tail >= 0 && Character.isDigit(handle.charAt(tail))) {
-            tail--;
-        }
-        if (tail < 0) {
-            tail = 0;
-        }
-        // remove all possible heading and trailing digits
-        for (int i = 0; i <= head; i++) {
-            for (int j = handle.length(); j > tail && j > i; j--) {
-                String extractedHandle = handle.substring(i, j);
-                if (checkExactMatch(extractedHandle)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    
-    private static boolean checkExactMatch(String handle) {
-    	return false; // true if handle is invalid
-    }
-
-    
 	public static boolean containsOnly(String string, String alphabet, boolean wsAllowed) {
 		int n = string.length();
 		for (int i = 0; i < n; ++i) {
@@ -210,24 +192,256 @@ public class Utils {
 		return true;
 	}
 	
-	public static Long toRawValue(TCID id) {
-		if(id==null)
-			return null;
-		try {
-			return Long.parseLong(id.getId());
-		} catch (NumberFormatException e) {
-			throw new APIRuntimeException("TCID["+id.getId()+"] can't be converted to long value.");
-		}
-	}
 	public static boolean isValid(TCID id) {
 		if(id==null)
 			return false;
 		try {
-			toRawValue(id);
-			return true;
+			return toLongValue(id) > 0;
 		} catch (Exception e) {
-			logger.debug("Utils#isValid() got an exception: "+e.getMessage(), e);
+			logger.debug("Utils#isValid(): TCID is invalid. "+e.getMessage());
 			return false;
 		}
+	}
+	
+	// package com.topcoder.web.common.StringUtils#getActivationCode
+	public static String getActivationCode(long coderId) {
+		String id = Long.toString(coderId);
+		String hash = new BigInteger(new BigInteger(id).bitLength(),
+				new Random(coderId)).add(new BigInteger("TopCoder", 36))
+				.toString();
+		while (hash.length() < id.length()) {
+			hash = "0" + hash;
+		}
+		hash = hash.substring(hash.length() - id.length());
+		return new BigInteger(id + hash).toString(36).toUpperCase();
+	}
+
+	// package com.topcoder.web.common.StringUtils#getCoderId
+	public static int getCoderId(String activationCode) {
+		try {
+			String idhash = new BigInteger(activationCode, 36).toString();
+			if (idhash.length() % 2 != 0)
+				return 0;
+			String id = idhash.substring(0, idhash.length() / 2);
+			String hash = idhash.substring(idhash.length() / 2);
+			if (new BigInteger(new BigInteger(id).bitLength(), new Random(
+					Long.parseLong(id))).add(new BigInteger("TopCoder", 36))
+					.toString().endsWith(hash)) {
+				return Integer.parseInt(id);
+			} else {
+				return 0;
+			}
+
+		} catch (Exception e) {
+			return 0;
+		}
+	}
+	
+	/**
+	 * Utility to create a Map as:
+	 * Map<String, Object> = hash(	key1, value1,
+	 * 								key2, value2,
+	 * 								key3, value3,
+	 * 								... );
+	 * @param kvPairs
+	 * @return
+	 */
+	public static Map<String, Object> hash(Object... kvPairs) {
+		Map<String, Object> hash = new HashMap<String, Object>();
+		for(int i=0; i<kvPairs.length; i+=2) {
+			Object k = kvPairs[i];
+			Object v = (i+1<kvPairs.length) ? kvPairs[i+1] : "";
+			hash.put(k!=null?k.toString():"", v);
+		}
+		return hash;
+	}
+	
+	/**
+	 * Utility to convert TCID to a Long value. (= Long.parseLong(id.getId()))
+	 * @param id
+	 * @return
+	 * @throws NumberFormatException
+	 */
+	public static Long toLongValue(TCID id) {
+		if(id==null || id.getId()==null)
+			return null;
+		try {
+			return Long.parseLong(id.getId());
+		} catch (NumberFormatException e) {
+			throw new NumberFormatException("Failed to convert TCID to long. error: " + e.getMessage());
+		}
+	}
+	
+	public static abstract class TokenExtractor {
+		protected Set<String> ignoreTokens;
+		public TokenExtractor(Set<String> ignoreWords) {
+			this.ignoreTokens = ignoreWords;
+		}
+		public abstract Set<String> extractTokens(String handle);
+	}
+	
+	/**
+	 * extracts tokens as: 
+	 * "12handle34" ->
+	 * 	["12handle34", "12handle3", "12handle", "2handle34", "2handle3", "2handle", "handle34", "handle3", "handle"] 
+	 */
+	public static class NumberTrimmingTokenExtractor extends TokenExtractor {
+		
+		public NumberTrimmingTokenExtractor(Set<String> ignoreTokens) {
+			super(ignoreTokens);
+		}
+		@Override
+		public Set<String> extractTokens(String handle) {
+			Set<String> extractedTokens = new LinkedHashSet<String>();
+			if(handle==null || handle.length()==0)
+				return extractedTokens;
+			
+			// find heading and trailing digits count
+			int head = 0;
+			while (head < handle.length() && Character.isDigit(handle.charAt(head))) {
+				head++;
+			}
+			if (head >= handle.length()) {
+				head = handle.length() - 1;
+			}
+			int tail = handle.length() - 1;
+			while (tail >= 0 && Character.isDigit(handle.charAt(tail))) {
+				tail--;
+			}
+			if (tail < 0) {
+				tail = 0;
+			}
+			// remove all possible heading and trailing digits
+			for (int i = 0; i <= head; i++) {
+				for (int j = handle.length(); j > tail && j > i; j--) {
+					String token = handle.substring(i, j);
+					if(token.length()>0 && !ignoreTokens.contains(token)) {
+						extractedTokens.add(token);
+						ignoreTokens.add(token);
+					}
+				}
+			}
+			return extractedTokens;
+		}
+	}
+	
+	/**
+	 * extracts tokens from the given handle by regex patterns.
+	 */
+	public static class RegexTokenExtractor extends TokenExtractor {
+		protected Pattern[] patterns;
+		public RegexTokenExtractor(Pattern[] patterns, Set<String> ignoreTokens) {
+			super(ignoreTokens);
+			this.patterns = patterns;
+		}
+		@Override
+		public Set<String> extractTokens(String handle) {
+			Set<String> extractedTokens = new LinkedHashSet<String>();
+			if(handle==null || handle.length()==0)
+				return extractedTokens;
+			
+			// breaking the handle into tokens by the patterns
+			for(int i=0; i<patterns.length; i++) {
+				Matcher m = patterns[i].matcher(handle);
+				if (m.matches()) {
+					String token = m.group(1);
+					if (!ignoreTokens.contains(token) && token.length() > 0) {
+						extractedTokens.add(token);
+						ignoreTokens.add(token);
+					}
+				}
+			}
+			return extractedTokens;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static Map<String, Object> parseJWTClaims(String token) throws Exception {
+		if (token==null || token.length()==0)
+			throw new IllegalArgumentException("token must be specified.");
+		
+		String[] pieces = token.split("\\.");
+		if (pieces.length != 3)
+			throw new IllegalArgumentException("Wrong number of segments in jwt: " + pieces.length);
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String jsonString = new String(Base64.decodeBase64(pieces[1]), "UTF-8");
+		JsonNode jwtClaim = mapper.readValue(jsonString, JsonNode.class);
+		return mapper.treeToValue(jwtClaim, Map.class);
+	}
+	
+	public static boolean isEmail(String handleOrEmail) {
+		if(isBlank(handleOrEmail))
+			throw new IllegalArgumentException("handleOrEmail must be specified.");
+		return handleOrEmail.contains("@");
+	}
+	
+
+	public static boolean isEmpty(String str) {
+		return StringUtils.isEmpty(str);
+	}
+	
+	public static boolean isBlank(String str) {
+		return StringUtils.isBlank(str);
+	}
+
+	/**
+	 * Check string length.
+	 * 
+	 * @param str the string to check
+	 * @param min the minimum length
+	 * @param max the maximum length
+	 * @return true if string length is within [min, max] scope, false otherwise
+	 */
+	public static boolean checkStringLength(String str, Integer min, Integer max) {
+		int length = str == null ? 0 : str.length();
+		if (min != null && length < min) {
+			return false;
+		}
+		if (max != null && length > max) {
+			return false;
+		}
+		return true;
+	}
+    
+    /**
+     * Check if the user has admin role.
+     * @param user the user.
+     * @return if the user admin role.
+     */
+    public static boolean hasAdminRole(AuthUser user) {
+        if (user == null || user.getRoles() == null)
+            return false;
+        return user.getRoles().contains("administrator");
+    }
+    
+    
+    public static JWTToken extractJWT(String token, String domain, String secret) {
+    	if(token==null)
+    		throw new IllegalArgumentException("token must be specified.");
+    	
+        try {
+        	JWTToken jwt = new JWTToken(token, secret);
+			jwt.isValidIssuerFor(domain);
+			return jwt;
+		} catch (Exception e) {
+			throw new APIRuntimeException(SC_UNAUTHORIZED, e.getMessage());
+		}
+    }
+    
+	public static String extractBearer(HttpServletRequest request) {
+		String prefix = "bearer";
+    	String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+    	if(header==null || header.trim().length()==0)
+    		return null;
+		final int space = header.indexOf(' ');
+		if(space <= 0)
+			return null;
+		
+		String method = header.substring(0, space);
+		if(!prefix.equalsIgnoreCase(method))
+			return null;
+		
+		return header.substring(space + 1);
 	}
 }
